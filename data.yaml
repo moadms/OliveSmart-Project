@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 1
+names: ['Olive Tree Detection V2 - v10 2025-06-02 6-33am']
+
+roboflow:
+  workspace: perjanya28
+  project: olive-tree-detection-lxf9j
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/perjanya28/olive-tree-detection-lxf9j/dataset/1

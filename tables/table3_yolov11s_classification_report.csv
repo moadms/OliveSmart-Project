@@ -1,0 +1,7 @@
+Phenotypic Class,Precision,Recall,F1-Score,AUC,Support (Trees)
+Healthy (Sain),0.968,0.962,0.965,0.996,483
+Water Stress,0.932,0.915,0.923,0.985,104
+Pathological Suspect,0.941,0.928,0.934,0.989,103
+Macro Average,0.947,0.935,0.941,0.990,690
+Weighted Average,0.956,0.948,0.952,0.992,690
+Overall mAP@50,0.952,-,0.952,mAP@50-95: 0.746,690

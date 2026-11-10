@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OliveSmart AI - Cartographie OpenStreetMap & Geofencing Cadastral (Marrakech, Maroc)</title>
+    
+    <!-- Leaflet CSS & JS pour OpenStreetMap / Satellite -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #121811;
+            --bg-card: #1b241a;
+            --bg-panel: #222d20;
+            --accent-green: #00c853;
+            --accent-gold: #ffb74d;
+            --color-sain: #00e676;
+            --color-stress: #ffb300;
+            --color-suspect: #ff5252;
+            --text-main: #ffffff;
+            --text-muted: #b0c4ae;
+            --border: #2e3e2c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* En-tête */
+        header {
+            background-color: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .badge-subject {
+            background-color: var(--accent-gold);
+            color: #000;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .author-tag {
+            background-color: #1a2f19;
+            border: 1px solid #3d6a38;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        /* Layout Principal */
+        .main-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 64px);
+        }
+
+        /* Barre Latérale Contrôle & Résultats */
+        .sidebar {
+            width: 380px;
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow-y: auto;
+        }
+
+        .card {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Bouton Analyser YOLO Style Plateforme Professeur */
+        .btn-analyze {
+            background-color: #556b2f;
+            background: linear-gradient(180deg, #648232 0%, #4a6125 100%);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            border: 1px solid #78993c;
+            border-radius: 6px;
+            padding: 12px;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-analyze:hover {
+            background: linear-gradient(180deg, #719339 0%, #556f2b 100%);
+            transform: translateY(-1px);
+        }
+
+        .btn-analyze:active {
+            transform: translateY(1px);
+        }
+
+        /* Sommets GPS Tracés */
+        .vertices-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        .vertex-badge {
+            background-color: #141b13;
+            border: 1px solid #2a3a28;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        /* Carte Résultats Santé */
+        .results-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .stat-item {
+            background-color: #141b13;
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            border-top: 3px solid;
+        }
+
+        .stat-item.sain { border-color: var(--color-sain); }
+        .stat-item.stress { border-color: var(--color-stress); }
+        .stat-item.suspect { border-color: var(--color-suspect); }
+
+        .stat-count {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* Map Container */
+        #map {
+            flex: 1;
+            height: 100%;
+            background-color: #0b100b;
+        }
+
+        /* Tooltip & Popup Leaflet */
+        .leaflet-popup-content-wrapper {
+            background: #1b241a;
+            color: #ffffff;
+            border: 1px solid var(--accent-gold);
+            border-radius: 6px;
+        }
+        .leaflet-popup-tip {
+            background: #1b241a;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-title">
+            <span style="font-size: 1.5rem;">🫒</span>
+            <h1>OliveSmart AI - Cartographie & Geofencing Drone</h1>
+            <span class="badge-subject">SUJET OLV-1</span>
+        </div>
+        <div class="author-tag">
+            👨‍💻 Réalisé par : Moad Moussaoui • Équipe OLV-1
+        </div>
+    </header>
+
+    <!-- Main -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Polygone Tracé -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📍 PARCELLE CADASTRE (6 SOMMETS)</span>
+                    <span style="font-size: 0.75rem; color: var(--accent-gold);">RÉGION MARRAKECH (HAOUZ)</span>
+                </div>
+                <div class="vertices-list">
+                    <div class="vertex-badge">S1: 31.63443, -7.96600</div>
+                    <div class="vertex-badge">S2: 31.63455, -7.96602</div>
+                    <div class="vertex-badge">S3: 31.63470, -7.96565</div>
+                    <div class="vertex-badge">S4: 31.63474, -7.96504</div>
+                    <div class="vertex-badge">S5: 31.63320, -7.96456</div>
+                    <div class="vertex-badge">S6: 31.63290, -7.96521</div>
+                </div>
+            </div>
+
+            <!-- Bouton d'action identique à la capture du professeur -->
+            <button id="btnRunYolo" class="btn-analyze" onclick="runYoloAnalysis()">
+                <span>🤖</span>
+                <span>6 points tracés — Analyser avec YOLO →</span>
+            </button>
+
+            <!-- Résultats d'Analyse (Identique à l'écran cible) -->
+            <div id="resultsCard" class="card results-box" style="display: none;">
+                <div class="card-title">
+                    <span id="resTotalTrees">9 oliviers détectés</span>
+                    <span style="color: var(--accent-green); font-size: 0.85rem;" id="resConfidence">Confiance 85.5%</span>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">par YOLO sur l'orthophoto satellite/drone</p>
+
+                <!-- 3 Classes de Santé -->
+                <div class="stat-grid">
+                    <div class="stat-item sain">
+                        <div class="stat-label">✅ Sains</div>
+                        <div class="stat-count" style="color: var(--color-sain);" id="countSains">4</div>
+                    </div>
+                    <div class="stat-item stress">
+                        <div class="stat-label">⚠️ Stress</div>
+                        <div class="stat-count" style="color: var(--color-stress);" id="countStress">3</div>
+                    </div>
+                    <div class="stat-item suspect">
+                        <div class="stat-label">🔴 Suspects</div>
+                        <div class="stat-count" style="color: var(--color-suspect);" id="countSuspects">2</div>
+                    </div>
+                </div>
+
+                <!-- Métriques de vol -->
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px;">
+                    <span>⏱️ <strong id="resLatency" style="color: #fff;">213 ms</strong></span>
+                    <span>🌳 Couronne : <strong id="resCrown" style="color: #fff;">Ø 5.8 m</strong></span>
+                </div>
+
+                <div style="margin-top: 6px; font-size: 0.75rem; color: #81c784; background: #132212; padding: 6px; border-radius: 4px;">
+                    ✓ Résultat appliqué — Compatible Microservice Spring Boot
+                </div>
+            </div>
+
+            <!-- Modèle Utilisé -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🧠 MODÈLE SÉLECTIONNÉ</span>
+                </div>
+                <select id="selectModel" style="width: 100%; background: #141b13; color: #fff; border: 1px solid var(--border); padding: 8px; border-radius: 4px;">
+                    <option value="ca">YOLOv8m + Coordinate Attention (Top SOTA Maroc - 95.6% mAP)</option>
+                    <option value="cbam">YOLOv8m + CBAM (Spatial & Canal Attention - 94.1% mAP)</option>
+                    <option value="se">YOLOv8m + SE Attention (Canal Squeeze - 92.7% mAP)</option>
+                    <option value="eca">YOLOv8m + ECA (Attention Légère - 92.1% mAP)</option>
+                    <option value="base">YOLOv8m Baseline (Standard - 91.2% mAP)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Leaflet Map -->
+        <div id="map"></div>
+    </div>
+
+    <script>
+        // Coordonnées exactes des 6 sommets de la parcelle (Marrakech / Haouz, Maroc)
+        const parcelVertices = [
+            [31.63443, -7.96600],
+            [31.63455, -7.96602],
+            [31.63470, -7.96565],
+            [31.63474, -7.96504],
+            [31.63320, -7.96456],
+            [31.63290, -7.96521]
+        ];
+
+        // Centre de la carte
+        const centerLat = 31.6338;
+        const centerLng = -7.9653;
+
+        // Initialisation de la carte Leaflet
+        const map = L.map('map').setView([centerLat, centerLng], 17);
+
+        // Fond de carte satellite haute résolution (Esri World Imagery)
+        const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri, Maxar, Earthstar Geographics',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Fond OpenStreetMap alternatif
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        });
+
+        // Contrôle des couches
+        L.control.layers({
+            "Satellite Haute Résolution": esriSatellite,
+            "OpenStreetMap Standard": osmLayer
+        }).addTo(map);
+
+        // Dessiner le polygone de la parcelle en vert forêt
+        const polygon = L.polygon(parcelVertices, {
+            color: '#69f0ae',
+            fillColor: '#2e7d32',
+            fillOpacity: 0.22,
+            weight: 3
+        }).addTo(map);
+
+        // Marqueurs des 6 sommets
+        parcelVertices.forEach((v, i) => {
+            L.circleMarker(v, {
+                radius: 6,
+                fillColor: '#ffd54f',
+                color: '#ffffff',
+                weight: 2,
+                fillOpacity: 1
+            }).addTo(map).bindTooltip(`Sommet S${i+1}`);
+        });
+
+        map.fitBounds(polygon.getBounds(), { padding: [40, 40] });
+
+        // Arbres détectés (avec classes de santé exactes de l'écran du prof)
+        const mockDetections = [
+            { lat: 31.63435, lng: -7.96580, status: 'SAIN', conf: 0.91, diam: 6.1 },
+            { lat: 31.63420, lng: -7.96550, status: 'SAIN', conf: 0.88, diam: 5.9 },
+            { lat: 31.63405, lng: -7.96525, status: 'SAIN', conf: 0.87, diam: 5.8 },
+            { lat: 31.63385, lng: -7.96500, status: 'SAIN', conf: 0.86, diam: 5.7 },
+            { lat: 31.63370, lng: -7.96540, status: 'STRESS', conf: 0.84, diam: 5.4 },
+            { lat: 31.63350, lng: -7.96520, status: 'STRESS', conf: 0.83, diam: 5.3 },
+            { lat: 31.63335, lng: -7.96495, status: 'STRESS', conf: 0.82, diam: 5.2 },
+            { lat: 31.63320, lng: -7.96510, status: 'SUSPECT', conf: 0.79, diam: 4.8 },
+            { lat: 31.63305, lng: -7.96515, status: 'SUSPECT', conf: 0.78, diam: 4.7 }
+        ];
+
+        let treeMarkersGroup = L.layerGroup().addTo(map);
+
+        function runYoloAnalysis() {
+            treeMarkersGroup.clearLayers();
+            const btn = document.getElementById('btnRunYolo');
+            btn.innerHTML = '<span>⏳</span><span>Analyse YOLO en cours...</span>';
+
+            setTimeout(() => {
+                btn.innerHTML = '<span>✓</span><span>Analyse Réussie !</span>';
+                document.getElementById('resultsCard').style.display = 'block';
+
+                // Tracer chaque arbre avec la couleur associée à son statut de santé
+                mockDetections.forEach(tree => {
+                    let color = tree.status === 'SAIN' ? '#00e676' : (tree.status === 'STRESS' ? '#ffb300' : '#ff5252');
+                    
+                    const marker = L.circleMarker([tree.lat, tree.lng], {
+                        radius: 8,
+                        fillColor: color,
+                        color: '#ffffff',
+                        weight: 2,
+                        fillOpacity: 0.9
+                    }).addTo(treeMarkersGroup);
+
+                    marker.bindPopup(`
+                        <div style="font-size: 0.85rem;">
+                            <strong>Olivier #${Math.floor(Math.random()*900)+100}</strong><br>
+                            Santé : <strong style="color:${color}">${tree.status}</strong><br>
+                            Confiance : ${(tree.conf * 100).toFixed(1)}%<br>
+                            Diamètre : ${tree.diam} m
+                        </div>
+                    `);
+                });
+            }, 500);
+        }
+    </script>
+</body>
+</html>

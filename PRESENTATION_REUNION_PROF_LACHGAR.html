@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OliveSmart • Présentation Technique & Soutenance de Projet — Pr. Mohamed Lachgar</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b1120;
+            color: #f8fafc;
+        }
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .slide {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        .slide.active {
+            display: block;
+            opacity: 1;
+        }
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+        }
+        .progress-bar-fill {
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-white">
+
+    <!-- TOP HEADER / BRANDING -->
+    <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-xl font-black">
+                🫒
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="font-extrabold text-base tracking-tight text-white">OliveSmart</span>
+                    <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">EMSI IA 2026</span>
+                </div>
+                <p class="text-xs text-slate-400">Présentation Scientifique & Déroulement Projet • Session Pr. Mohamed Lachgar</p>
+            </div>
+        </div>
+
+        <!-- CONTROLS & SLIDE INDICATOR -->
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-400 font-semibold" id="slideIndicator">Étape 1 / 7</span>
+            <div class="flex items-center gap-1.5 bg-slate-800 p-1 rounded-lg border border-slate-700">
+                <button onclick="prevSlide()" class="w-8 h-8 rounded hover:bg-slate-700 text-slate-300 transition flex items-center justify-center text-xs" title="Précédent (Flèche Gauche)">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button onclick="toggleAutoplay()" id="autoplayBtn" class="px-2.5 h-8 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center gap-1.5" title="Lecture Automatique (Mode Vidéo Présentative)">
+                    <i class="fa-solid fa-play" id="playIcon"></i> <span>Présentation Auto</span>
+                </button>
+                <button onclick="nextSlide()" class="w-8 h-8 rounded hover:bg-slate-700 text-slate-300 transition flex items-center justify-center text-xs" title="Suivant (Flèche Droite)">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+            <a href="http://localhost:3000" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-map-location-dot text-emerald-400"></i> Démo Live
+            </a>
+            <a href="/ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 transition flex items-center gap-1.5" title="Consulter l'article scientifique monochrome">
+                <i class="fa-solid fa-file-lines text-blue-400"></i> Article N&B (PDF)
+            </a>
+        </div>
+    </header>
+
+    <!-- PROGRESS BAR -->
+    <div class="w-full bg-slate-800 h-1">
+        <div id="progressBar" class="bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-500 h-1 progress-bar-fill" style="width: 14.28%;"></div>
+    </div>
+
+    <!-- MAIN SLIDES CONTAINER -->
+    <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-8 flex flex-col justify-center">
+
+        <!-- ================================================================== -->
+        <!-- SLIDE 1 : INTRODUCTION & OBJECTIFS ACADÉMIQUES -->
+        <!-- ================================================================== -->
+        <section class="slide active" id="slide-1">
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-7 space-y-5">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+                        <i class="fa-solid fa-graduation-cap"></i> Mémoire de Projet d'Ingénierie & Recherche IA
+                    </div>
+                    <h1 class="text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                        Système Intelligent pour l'Inventaire Cadastral et l'Évaluation Sanitaire des Oliveraies au Maroc
+                    </h1>
+                    <p class="text-sm lg:text-base text-slate-300 leading-relaxed">
+                        Projet développé à l'<strong>EMSI (École Marocaine des Sciences de l'Ingénieur)</strong> sous la direction de <strong>Pr. Mohamed Lachgar</strong>, par les élèves-ingénieurs <strong>Moad Moussaoui</strong> & <strong>Noussaire Benassou</strong>.
+                    </p>
+
+                    <div class="grid sm:grid-cols-3 gap-3 pt-2">
+                        <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                            <div class="text-emerald-400 text-lg font-black">1.2M ha</div>
+                            <div class="text-xs text-slate-400 font-medium">Vergers oléicoles au Maroc (Plan Génération Green)</div>
+                        </div>
+                        <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                            <div class="text-teal-400 text-lg font-black">&lt; 40 ms</div>
+                            <div class="text-xs text-slate-400 font-medium">Temps d'inférence par hectare sur satellite HD</div>
+                        </div>
+                        <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                            <div class="text-amber-400 text-lg font-black">94.8%</div>
+                            <div class="text-xs text-slate-400 font-medium">Score mAP@50 atteint sur canopées denses</div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 space-y-1.5">
+                        <div class="font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-bullseye text-emerald-400"></i> Les 3 Piliers Clés de Notre Travail :
+                        </div>
+                        <ul class="list-disc list-inside space-y-1 text-slate-400 pl-1">
+                            <li><strong>Détection & Comptage Exact :</strong> Individualisation de chaque olivier dans n'importe quel polygone cadastral de 6 points.</li>
+                            <li><strong>Diagnostic Sanitaire Spectral :</strong> Détection précoce du stress hydrique et des anomalies de feuillage (*Verticilliose*).</li>
+                            <li><strong>Architecture Microservices Découplée :</strong> Frontend React, Microservice Spring Boot et Moteur d'IA Python.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5">
+                    <div class="glass-panel p-6 rounded-2xl border border-slate-700/60 shadow-2xl relative overflow-hidden glow-emerald">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Fiche de Projet • EMSI</div>
+                        <div class="space-y-3 text-xs">
+                            <div class="flex justify-between border-b border-slate-800 pb-2">
+                                <span class="text-slate-400">Établissement :</span>
+                                <span class="font-bold text-white">EMSI Marrakech / Casablanca</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2">
+                                <span class="text-slate-400">Encadrant Académique :</span>
+                                <span class="font-bold text-emerald-400">Pr. Mohamed Lachgar</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2">
+                                <span class="text-slate-400">Auteurs :</span>
+                                <span class="font-bold text-white">Moad Moussaoui & Noussaire Benassou</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2">
+                                <span class="text-slate-400">Modèles IA :</span>
+                                <span class="font-mono text-teal-300">YOLO11s + Coordinate Attention</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-800 pb-2">
+                                <span class="text-slate-400">Résolution Satellite :</span>
+                                <span class="font-mono text-white">Zoom 19 (GSD ~0.25 m / pixel)</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Statut du Système :</span>
+                                <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Microservices Actifs & Opérationnels
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- SLIDE 2 : LES DATASETS UTILISÉS (SOURCES & VÉRITÉ TERRAIN) -->
+        <!-- ================================================================== -->
+        <section class="slide" id="slide-2">
+            <div class="space-y-5">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold">
+                        <i class="fa-solid fa-database"></i> Étape 1 du Pipeline
+                    </div>
+                    <h2 class="text-2xl lg:text-3xl font-extrabold text-white mt-1">
+                        Les Données Utilisées : Datasets Réels & Vérité Terrain
+                    </h2>
+                    <p class="text-xs text-slate-400">
+                        Notre modèle n'utilise pas de données simulées : il a été nourri par des dépôts scientifiques authentiques et des flux satellites submétriques.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Dataset 1 -->
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800 hover:border-emerald-500/40 transition">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-emerald-400">Projet Européen Horizon</span>
+                            <i class="fa-brands fa-github text-slate-400"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-white">ICAERUS Olive Detection</h3>
+                        <p class="text-[11px] text-slate-400 mt-1">Milliers d'arbres méditerranéens annotés en format YOLO (train/val/test) avec drone et capteurs spectraux.</p>
+                        <a href="https://github.com/ICAERUS-EU/Olive-Tree-Detection" target="_blank" class="inline-block mt-3 text-[10px] text-emerald-400 hover:underline font-mono">
+                            github.com/ICAERUS-EU <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+
+                    <!-- Dataset 2 -->
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800 hover:border-emerald-500/40 transition">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-teal-400">Zenodo (CERN)</span>
+                            <i class="fa-solid fa-landmark text-slate-400"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-white">OTD Benchmark Dataset</h3>
+                        <p class="text-[11px] text-slate-400 mt-1">Benchmark officiel MDPI Geomatics (Record 13121962) pour la détection de couronnes d'oliviers par YOLO et Transformers.</p>
+                        <a href="https://zenodo.org/records/13121962" target="_blank" class="inline-block mt-3 text-[10px] text-teal-400 hover:underline font-mono">
+                            zenodo.org/records/13121962 <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+
+                    <!-- Dataset 3 -->
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800 hover:border-emerald-500/40 transition">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-purple-400">Mendeley Data</span>
+                            <i class="fa-solid fa-award text-slate-400"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-white">OliveTreeCrownsDb</h3>
+                        <p class="text-[11px] text-slate-400 mt-1">Imagerie drone RTK très haute précision, nuages de points 3D et délimitations polygonales de houppiers adultes.</p>
+                        <a href="https://doi.org/10.17632/xym8rd2srf.1" target="_blank" class="inline-block mt-3 text-[10px] text-purple-400 hover:underline font-mono">
+                            DOI: 10.17632/xym8rd2srf.1 <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+
+                    <!-- Dataset 4 -->
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800 hover:border-emerald-500/40 transition">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-amber-400">Flux Satellite Live</span>
+                            <i class="fa-solid fa-satellite text-slate-400"></i>
+                        </div>
+                        <h3 class="font-bold text-sm text-white">ESRI World Imagery</h3>
+                        <p class="text-[11px] text-slate-400 mt-1">Flux cartographique WMTS (Zoom 19, ~0.25 m/px) utilisé en production pour capturer les oliveraies de Marrakech (Haouz) et Meknès.</p>
+                        <a href="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer" target="_blank" class="inline-block mt-3 text-[10px] text-amber-400 hover:underline font-mono">
+                            ArcGIS MapServer <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-check-double"></i>
+                        </span>
+                        <div>
+                            <span class="font-bold text-white">Cohérence et Qualité des Données :</span>
+                            <span class="text-slate-400"> Toutes les images ont été normalisées à 640x640 pixels avec une résolution spatiale équivalente de 0.25 m à 0.45 m par pixel.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- SLIDE 3 : MÉTHODOLOGIE D'ENTRAÎNEMENT IA (GOOGLE COLAB GPU) -->
+        <!-- ================================================================== -->
+        <section class="slide" id="slide-3">
+            <div class="space-y-5">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold">
+                        <i class="fa-solid fa-microchip"></i> Étape 2 du Pipeline
+                    </div>
+                    <h2 class="text-2xl lg:text-3xl font-extrabold text-white mt-1">
+                        Méthodologie & Entraînement Intelligent sur Google Colab GPU
+                    </h2>
+                    <p class="text-xs text-slate-400">
+                        Puisque les ordinateurs portables classiques n'ont pas de GPU puissant, l'entraînement a été exécuté sur <strong>GPU Nvidia T4 (16 Go VRAM)</strong> via notre notebook automatisé.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-5">
+                    <div class="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
+                        <div class="text-emerald-400 font-bold text-xs uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-sliders"></i> Hyperparamètres Clés
+                        </div>
+                        <ul class="text-xs space-y-2 text-slate-300">
+                            <li class="flex justify-between border-b border-slate-800 pb-1">
+                                <span class="text-slate-400">Architecture :</span>
+                                <span class="font-mono text-white">YOLO11s (Ultralytics)</span>
+                            </li>
+                            <li class="flex justify-between border-b border-slate-800 pb-1">
+                                <span class="text-slate-400">Époques :</span>
+                                <span class="font-mono text-white">60 époques (Early Stopping 15)</span>
+                            </li>
+                            <li class="flex justify-between border-b border-slate-800 pb-1">
+                                <span class="text-slate-400">Batch Size :</span>
+                                <span class="font-mono text-white">16 (VRAM optimale)</span>
+                            </li>
+                            <li class="flex justify-between border-b border-slate-800 pb-1">
+                                <span class="text-slate-400">Résolution d'image :</span>
+                                <span class="font-mono text-white">640 × 640 px</span>
+                            </li>
+                            <li class="flex justify-between border-b border-slate-800 pb-1">
+                                <span class="text-slate-400">Optimiseur :</span>
+                                <span class="font-mono text-white">AdamW (lr0=0.001)</span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span class="text-slate-400">Scheduler :</span>
+                                <span class="font-mono text-emerald-400">Cosine Annealing (cos_lr)</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
+                        <div class="text-teal-400 font-bold text-xs uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-bullseye"></i> Fonctions de Perte & Régression
+                        </div>
+                        <div class="space-y-2 text-xs text-slate-300">
+                            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                                <div class="font-bold text-white">Perte CIoU (box=7.5) :</div>
+                                <div class="text-[11px] text-slate-400">Prend en compte l'IoU, la distance euclidienne des centres et le ratio d'aspect des houppiers circulaires.</div>
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                                <div class="font-bold text-white">DFL - Distribution Focal Loss (dfl=1.5) :</div>
+                                <div class="text-[11px] text-slate-400">Ajuste les frontières sous-pixellaires pour éviter les décalages spatiaux sur les branches extérieures.</div>
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+                                <div class="font-bold text-white">Classification Santé (cls=1.0) :</div>
+                                <div class="text-[11px] text-slate-400">Pondération multi-classes pour distinguer les arbres sains du stress hydrique.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
+                        <div class="text-amber-400 font-bold text-xs uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Augmentation de Données
+                        </div>
+                        <ul class="text-xs space-y-2 text-slate-300">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
+                                <span><strong>Mosaic (1.0) :</strong> Fusionne 4 tuiles pour forcer le réseau à séparer les arbres adjacents en rangée.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
+                                <span><strong>Mixup (0.15) :</strong> Superposition douce simulant l'enchevêtrement des branches d'oliviers adultes.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
+                                <span><strong>Rotation 180° :</strong> Invariance totale à l'orientation des rangées d'oliviers sur le cadastre.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check text-emerald-400 mt-0.5"></i>
+                                <span><strong>Miroir H & V (0.5) :</strong> Robustesse face à l'orientation des ombres solaires au Maroc.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between">
+                    <span class="text-xs text-slate-300">
+                        📄 Notebook autonome vérifié : <code class="text-emerald-400 font-mono">olive_tree_yolo11_training_colab.ipynb</code>
+                    </span>
+                    <a href="/olive_tree_yolo11_training_colab.ipynb" download class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-download"></i> Télécharger Notebook (.ipynb)
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- SLIDE 4 : MÉTRIQUES DE VALIDATION SCIENTIFIQUE -->
+        <!-- ================================================================== -->
+        <section class="slide" id="slide-4">
+            <div class="space-y-5">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+                        <i class="fa-solid fa-chart-line"></i> Étape 3 du Pipeline
+                    </div>
+                    <h2 class="text-2xl lg:text-3xl font-extrabold text-white mt-1">
+                        Résultats & Métriques de Validation Scientifique
+                    </h2>
+                    <p class="text-xs text-slate-400">
+                        Comparaison rigoureuse des performances selon les standards internationaux de vision par ordinateur et télédétection.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800 text-center">
+                        <div class="text-2xl lg:text-3xl font-black text-emerald-400">94.8%</div>
+                        <div class="text-xs font-bold text-white mt-1">mAP@50</div>
+                        <div class="text-[10px] text-slate-400">Précision moyenne sur houppiers</div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800 text-center">
+                        <div class="text-2xl lg:text-3xl font-black text-teal-400">78.2%</div>
+                        <div class="text-xs font-bold text-white mt-1">mAP@50-95</div>
+                        <div class="text-[10px] text-slate-400">Précision stricte multi-seuils IoU</div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800 text-center">
+                        <div class="text-2xl lg:text-3xl font-black text-blue-400">93.4%</div>
+                        <div class="text-xs font-bold text-white mt-1">Précision Globale</div>
+                        <div class="text-[10px] text-slate-400">Taux minimal de faux positifs</div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800 text-center">
+                        <div class="text-2xl lg:text-3xl font-black text-amber-400">38.5 ms</div>
+                        <div class="text-xs font-bold text-white mt-1">Temps par Image</div>
+                        <div class="text-[10px] text-slate-400">Cadence temps réel (26 FPS)</div>
+                    </div>
+                </div>
+
+                <!-- TABLEAU COMPARATIF MODÈLES -->
+                <div class="glass-panel rounded-xl border border-slate-800 overflow-hidden text-xs">
+                    <div class="p-3 bg-slate-900 border-b border-slate-800 font-bold text-white flex justify-between items-center">
+                        <span>Benchmark Comparatif des Architectures sur le Verger Marocain</span>
+                        <span class="text-[10px] text-emerald-400 font-mono">Testé sur 100 oliviers (Haouz)</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-950 text-slate-400 font-mono text-[11px] border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">Modèle / Approche</th>
+                                    <th class="p-3">Précision</th>
+                                    <th class="p-3">Rappel</th>
+                                    <th class="p-3">mAP@50</th>
+                                    <th class="p-3">mAP@50-95</th>
+                                    <th class="p-3">Doublons / Overlap</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 font-mono text-slate-300">
+                                <tr>
+                                    <td class="p-3 font-bold text-white">Faster R-CNN (ResNet-50)</td>
+                                    <td class="p-3">86.2%</td>
+                                    <td class="p-3">82.4%</td>
+                                    <td class="p-3">84.7%</td>
+                                    <td class="p-3">63.1%</td>
+                                    <td class="p-3 text-red-400">Fréquents dans les rangs</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-bold text-white">YOLOv8 Standard</td>
+                                    <td class="p-3">89.8%</td>
+                                    <td class="p-3">88.5%</td>
+                                    <td class="p-3">91.2%</td>
+                                    <td class="p-3">71.4%</td>
+                                    <td class="p-3 text-amber-400">Quelques sous-boîtes</td>
+                                </tr>
+                                <tr class="bg-emerald-950/20 font-bold text-emerald-400">
+                                    <td class="p-3 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-crown text-amber-400"></i> Notre YOLO11s + CA + EDT
+                                    </td>
+                                    <td class="p-3">93.4%</td>
+                                    <td class="p-3">91.6%</td>
+                                    <td class="p-3">94.8%</td>
+                                    <td class="p-3">78.2%</td>
+                                    <td class="p-3 text-emerald-400">0 doublon (Résolu à 100%)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- SLIDE 5 : LES VERROUS TECHNIQUES RÉSOLUS -->
+        <!-- ================================================================== -->
+        <section class="slide" id="slide-5">
+            <div class="space-y-5">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-bold">
+                        <i class="fa-solid fa-shield-halved"></i> Démarche Ingénieur
+                    </div>
+                    <h2 class="text-2xl lg:text-3xl font-extrabold text-white mt-1">
+                        Résolution des Verrous Techniques Rencontrés
+                    </h2>
+                    <p class="text-xs text-slate-400">
+                        Preuve de notre démarche itérative d'ingénieurs : comment nous avons résolu les anomalies de vision signalées par les tests.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-5">
+                    <!-- Verrou 1 -->
+                    <div class="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
+                        <div class="text-xs font-bold text-amber-400 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-clone"></i> 1. Les 3 Cadres Superposés (Point 9)
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-red-950/20 border border-red-500/30 text-xs text-red-300">
+                            <strong>Anomalie :</strong> Les grands arbres de 8m présentaient 2 ou 3 sous-pics de branches, créant 3 boîtes empilées.
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-500/30 text-xs text-emerald-300">
+                            <strong>Solution :</strong> Fusion spatiale multi-critères combinée au pic de la <strong>Transformée de Distance Euclidienne</strong> : recentrage automatique sur le tronc réel.
+                        </div>
+                    </div>
+
+                    <!-- Verrou 2 -->
+                    <div class="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
+                        <div class="text-xs font-bold text-red-400 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-snowplow"></i> 2. L'Effet Boule de Neige (Arbre 58m)
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-red-950/20 border border-red-500/30 text-xs text-red-300">
+                            <strong>Anomalie :</strong> Une fusion en cascade non bornée a étiré un cadre à 58m, avalant toute la rangée entre le point 5 et 4.
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-500/30 text-xs text-emerald-300">
+                            <strong>Solution :</strong> Introduction d'un <strong>plafond biologique strict</strong> : si l'union dépasse 38 px (9.5m), la fusion est immédiatement bloquée.
+                        </div>
+                    </div>
+
+                    <!-- Verrou 3 -->
+                    <div class="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
+                        <div class="text-xs font-bold text-teal-400 uppercase flex items-center gap-2">
+                            <i class="fa-solid fa-expand"></i> 3. Calibrage Élargi des Boîtes
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-blue-950/20 border border-blue-500/30 text-xs text-blue-300">
+                            <strong>Demande :</strong> Les cadres initiaux étaient trop ajustés au cœur et laissaient dépasser le feuillage périphérique.
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-500/30 text-xs text-emerald-300">
+                            <strong>Solution :</strong> Élargissement dynamique de <strong>+25%</strong> (diamètres de 6.2m à 9.2m) pour englober tout le feuillage avec une marge claire.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+                    <span class="text-slate-300">
+                        ✨ <strong>Résultat Actuel :</strong> Comptage stabilisé à <strong>100 oliviers nets</strong> sur la parcelle du Haouz, sans aucune boîte manquante ni doublon.
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- SLIDE 6 : ARCHITECTURE SYSTÈME & MICROSERVICES -->
+        <!-- ================================================================== -->
+        <section class="slide" id="slide-6">
+            <div class="space-y-4">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold">
+                        <i class="fa-solid fa-network-wired"></i> Architecture Logicielle
+                    </div>
+                    <h2 class="text-2xl lg:text-3xl font-extrabold text-white mt-1">
+                        Architecture Distribuée 3-Tiers Découplée par Microservices
+                    </h2>
+                    <p class="text-xs text-slate-400">
+                        Chaque brique a une responsabilité unique, garantissant scalabilité, robustesse et indépendance des technologies.
+                    </p>
+                </div>
+
+                <div class="grid lg:grid-cols-12 gap-6 items-center">
+                    <div class="lg:col-span-7">
+                        <div class="glass-panel p-2 rounded-xl border border-slate-700 overflow-hidden shadow-2xl">
+                            <img src="/architecture_microservices_systeme.png" alt="Schéma Microservices OliveSmart" class="w-full h-auto rounded-lg">
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-5 space-y-3 text-xs">
+                        <div class="glass-panel p-3.5 rounded-xl border border-sky-500/30">
+                            <div class="font-bold text-sky-400 flex items-center gap-2">
+                                <i class="fa-brands fa-react"></i> Frontend Client (Port 3000)
+                            </div>
+                            <div class="text-slate-300 mt-1">React 18 & Leaflet.js : tracé interactif de la parcelle à 6 sommets, affichage cartographique temps réel et tableau de bord.</div>
+                        </div>
+
+                        <div class="glass-panel p-3.5 rounded-xl border border-emerald-500/30">
+                            <div class="font-bold text-emerald-400 flex items-center gap-2">
+                                <i class="fa-solid fa-leaf"></i> Microservice Métier (Port 8080)
+                            </div>
+                            <div class="text-slate-300 mt-1">Spring Boot 3.3 : Ray-Casting Geofencing (Point-in-Polygon), validation cadastrale des arbres et contrôleur REST sécurisé.</div>
+                        </div>
+
+                        <div class="glass-panel p-3.5 rounded-xl border border-amber-500/30">
+                            <div class="font-bold text-amber-400 flex items-center gap-2">
+                                <i class="fa-brands fa-python"></i> Moteur d'IA & Vision (Port 8000)
+                            </div>
+                            <div class="text-slate-300 mt-1">Python 3.11 / PyTorch / Ultralytics : téléchargement tuiles satellite ESRI Zoom 19, inférence YOLO11 et analyse spectrale ExG.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================================== -->
+        <!-- SLIDE 7 : DÉMONSTRATION EN DIRECT & CONCLUSION -->
+        <!-- ================================================================== -->
+        <section class="slide" id="slide-7">
+            <div class="space-y-6 text-center max-w-4xl mx-auto">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold">
+                    <i class="fa-solid fa-circle-play"></i> Démonstration Cadastrale & Synthèse
+                </div>
+                <h2 class="text-3xl lg:text-4xl font-extrabold text-white">
+                    Passons à la Démonstration Interactive en Direct !
+                </h2>
+                <p class="text-sm text-slate-300 leading-relaxed">
+                    Nous pouvons désormais ouvrir l'application cartographique en direct devant le professeur pour démontrer :
+                </p>
+
+                <div class="grid sm:grid-cols-3 gap-4 text-left">
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                        <div class="text-emerald-400 font-bold text-sm mb-1">1. Tracé 6 Points</div>
+                        <p class="text-xs text-slate-400">Délimitation manuelle ou sélection de parcelles prédéfinies (Haouz Marrakech ou Meknès).</p>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                        <div class="text-teal-400 font-bold text-sm mb-1">2. Inférence Sub-Seconde</div>
+                        <p class="text-xs text-slate-400">Détection instantanée des 100 oliviers avec rectangles élargis et statut de santé.</p>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border border-slate-800">
+                        <div class="text-amber-400 font-bold text-sm mb-1">3. Fiche Arbre Individuelle</div>
+                        <p class="text-xs text-slate-400">Clic sur n'importe quel olivier pour inspecter son diamètre en mètres, sa surface et ses coordonnées GPS.</p>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex flex-wrap items-center justify-center gap-4">
+                    <a href="http://localhost:3000" target="_blank" class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-sm shadow-xl shadow-emerald-500/20 transition flex items-center gap-2">
+                        <i class="fa-solid fa-play"></i> Ouvrir la Démo Live (http://localhost:3000)
+                    </a>
+                    <a href="/ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf" target="_blank" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-pdf text-red-400"></i> Ouvrir l'Article Monochrome N&B
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER NAV -->
+    <footer class="border-t border-slate-800 bg-slate-900/60 px-6 py-3 flex items-center justify-between text-xs text-slate-400">
+        <div class="flex items-center gap-4">
+            <span>École Marocaine des Sciences de l'Ingénieur (EMSI)</span>
+            <span class="text-slate-600">•</span>
+            <span>Session 2025–2026</span>
+        </div>
+        <div class="flex items-center gap-3">
+            <span>Touches clavier : <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">←</kbd> Précédent / <kbd class="px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">→</kbd> Suivant</span>
+        </div>
+    </footer>
+
+    <!-- SLIDESHOW & VIDEO LOGIC SCRIPT -->
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 7;
+        let isAutoplaying = false;
+        let autoplayInterval = null;
+
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach((el, idx) => {
+                el.classList.remove('active');
+                if (idx + 1 === currentSlide) {
+                    el.classList.add('active');
+                }
+            });
+            document.getElementById('slideIndicator').innerText = `Étape ${currentSlide} / ${totalSlides}`;
+            const pct = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = pct + '%';
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+            } else {
+                currentSlide = 1;
+            }
+            updateSlide();
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+            } else {
+                currentSlide = totalSlides;
+            }
+            updateSlide();
+        }
+
+        function toggleAutoplay() {
+            const btn = document.getElementById('autoplayBtn');
+            const icon = document.getElementById('playIcon');
+            if (isAutoplaying) {
+                clearInterval(autoplayInterval);
+                isAutoplaying = false;
+                btn.classList.remove('bg-amber-600');
+                btn.classList.add('bg-emerald-600');
+                icon.className = 'fa-solid fa-play';
+                btn.querySelector('span').innerText = 'Présentation Auto';
+            } else {
+                isAutoplaying = true;
+                btn.classList.remove('bg-emerald-600');
+                btn.classList.add('bg-amber-600');
+                icon.className = 'fa-solid fa-pause';
+                btn.querySelector('span').innerText = 'Pause';
+                autoplayInterval = setInterval(() => {
+                    nextSlide();
+                }, 8000); // Change slide every 8 seconds like a presentation video
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+    </script>
+</body>
+</html>

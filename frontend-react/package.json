@@ -1,0 +1,13 @@
+{
+  "name": "olivesmart-frontend-react",
+  "version": "1.0.0",
+  "description": "Frontend React 18 pour la détection et géolocalisation des oliviers (Maroc Haouz)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["react", "leaflet", "yolo", "olive", "agriculture"],
+  "author": "Moad Moussaoui",
+  "license": "MIT"
+}

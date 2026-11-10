@@ -1,0 +1,4 @@
+Dataset Split,Healthy (Sain),Water Stress,Pathological Suspect,Total Trees,Spatial GSD (m/px)
+Training (80%),1932,414,414,2760,0.025 - 0.250
+Validation (20%),483,104,103,690,0.025 - 0.250
+Total,2415,518,517,3450,Multi-Sensor

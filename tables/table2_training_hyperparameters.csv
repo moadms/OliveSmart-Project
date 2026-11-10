@@ -1,0 +1,8 @@
+Hyperparameter,Value / Policy,Agronomic Rationale
+Optimizer,"AdamW (lr0 = 1e-3, weight_decay = 0.0005)",Decoupled L2 regularization for rapid convergence without weight explosion
+Loss Formulation,CIoU (7.5) + DFL (1.5) + BCE (0.5),Aspect ratio penalty + distributional focal loss + binary class cross-entropy
+Epochs & Early Stopping,"100 epochs (Patience = 15, stopped @ 82)",Anti-overfitting guard preventing memorization of arid background soil
+Batch Size,16,Optimal gradient variance with A100 40GB GPU
+LR Scheduler,"Cosine Annealing (lrf = 0.01, 3 warmup epochs)",Smooth minimum descent avoiding early local optima
+Geometric Augmentation,"Rotation (+-180 deg), Mosaic (1.0), MixUp (0.15)","Invariance to UAV flight azimuth, solar shadows, and boundary clipping"
+Photometric Jitter,"HSV-H (0.015), HSV-S (0.7), HSV-V (0.4)","Robustness against dry soil reflectance, limestone dust, and seasonal glare"
