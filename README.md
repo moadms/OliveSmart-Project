@@ -191,13 +191,51 @@ node server.js
 
 ---
 
+## 📁 Organisation Propre du Projet
+
+Pour une clarté maximale lors de l'évaluation et de la maintenance, le répertoire est rigoureusement structuré :
+
+```
+OliveSmart-Project/
+├── 📄 README.md                                # Guide complet d'installation et architecture
+├── 🚀 Lancer_Tout_Le_Projet.bat                 # Lanceur tout-en-un (Python + Spring Boot + React)
+├── 🧠 ai_engine_server.py                      # Microservice IA Vision (Port 8000)
+├── ⚖️ best.pt                                   # Poids du modèle YOLO11 fine-tuné
+├── 📓 olive_tree_yolo11_training_colab.ipynb   # Notebook Google Colab GPU (Entraînement T4)
+│
+├── 📂 rapports_et_articles_pdf/                # 📚 Tous les rapports et articles scientifiques (PDF)
+│   ├── ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf # Article scientifique officiel (Noir & Blanc strict)
+│   ├── ARTICLE_SCIENTIFIQUE_EMSI_OLIVESMART.pdf # Version avec illustrations
+│   ├── RAPPORT_TECHNIQUE_OLIVESMART_SYSTEME.pdf # Rapport technique d'ingénierie et benchmarks
+│   └── RAPPORT_SCIENTIFIQUE_ARCHITECTURE_SYSTEME.pdf
+│
+├── 📂 rapports_html/                           # 🌐 Rapports d'analyse et diaporamas interactifs (HTML)
+│   ├── PRESENTATION_REUNION_PROF_LACHGAR.html  # Présentation interactive / vidéo pour le professeur
+│   ├── RESUME_EXPLICATION_PROJET_ENFANT.html   # Vulgarisation pédagogique illustrée
+│   └── Article_Scientifique_OLV1_Benchmark.html
+│
+├── 📂 resultats_tests/                         # 🔬 Captures d'écrans des tests, crops et benchmarks
+│   ├── screenshot_zoom19_full.png              # Détection cadastrale haute résolution
+│   ├── test_all_clusters_resolved.png          # Résolution des clusters d'arbres denses
+│   ├── crop_watershed_result.png               # Segmentation et transformée de distance
+│   └── screenshot_calibrated_rectangles_fixed.png
+│
+├── 📂 frontend-react/                          # 🖥️ Interface Web interactive React / Leaflet (Port 3000)
+├── 📂 springboot-microservice-olive/           # ⚙️ Microservice Métier Spring Boot 3.3 (Port 8080)
+├── 📂 figures/                                 # 📊 Figures haute résolution du mémoire scientifique
+└── 📂 tables/                                  # 📈 Données quantitatives et benchmarks (CSV)
+```
+
+---
+
 ## 📦 Livrables Académiques Inclus
 
 Le dépôt contient l'ensemble des documents scientifiques et supports de soutenance :
-* 📄 **[`ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf`](ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf)** : Article scientifique officiel de 7 pages au format académique standard **Noir & Blanc / Monochrome** (titres noirs, tableaux booktabs, bibliographie avec DOI).
-* 📑 **[`RAPPORT_TECHNIQUE_OLIVESMART_SYSTEME.pdf`](RAPPORT_TECHNIQUE_OLIVESMART_SYSTEME.pdf)** : Rapport technique d'ingénierie système et benchmarks IA.
-* 🎬 **[`PRESENTATION_REUNION_PROF_LACHGAR.html`](PRESENTATION_REUNION_PROF_LACHGAR.html)** : Support de soutenance interactif avec mode diaporama et mode vidéo automatique pour la réunion avec Pr. Mohamed Lachgar.
-* 💡 **[`RESUME_EXPLICATION_PROJET_ENFANT.html`](RESUME_EXPLICATION_PROJET_ENFANT.html)** : Guide de vulgarisation ludique et illustré.
+* 📄 **[`rapports_et_articles_pdf/ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf`](rapports_et_articles_pdf/ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf)** : Article scientifique officiel de 7 pages au format académique standard **Noir & Blanc / Monochrome** (titres noirs, tableaux booktabs, bibliographie avec DOI).
+* 📑 **[`rapports_et_articles_pdf/RAPPORT_TECHNIQUE_OLIVESMART_SYSTEME.pdf`](rapports_et_articles_pdf/RAPPORT_TECHNIQUE_OLIVESMART_SYSTEME.pdf)** : Rapport technique d'ingénierie système et benchmarks IA.
+* 🎬 **[`rapports_html/PRESENTATION_REUNION_PROF_LACHGAR.html`](rapports_html/PRESENTATION_REUNION_PROF_LACHGAR.html)** : Support de soutenance interactif avec mode diaporama et mode vidéo automatique pour la réunion avec Pr. Mohamed Lachgar.
+* 💡 **[`rapports_html/RESUME_EXPLICATION_PROJET_ENFANT.html`](rapports_html/RESUME_EXPLICATION_PROJET_ENFANT.html)** : Guide de vulgarisation ludique et illustré.
+* 🔬 **[`resultats_tests/`](resultats_tests/)** : Dossier regroupant toutes les captures d'écran, visualisations d'expérimentation et preuves de validation.
 * 🛰️ **[`olive_tree_yolo11_training_colab.ipynb`](olive_tree_yolo11_training_colab.ipynb)** : Notebook Jupyter prêt à l'emploi sur Google Colab GPU.
 
 ---
