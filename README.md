@@ -211,8 +211,7 @@ OliveSmart-Project/
 │
 ├── 📂 rapports_html/                           # 🌐 Rapports d'analyse et diaporamas interactifs (HTML)
 │   ├── PRESENTATION_REUNION_PROF_LACHGAR.html  # Présentation interactive / vidéo pour le professeur
-│   ├── RESUME_EXPLICATION_PROJET_ENFANT.html   # Vulgarisation pédagogique illustrée
-│   └── Article_Scientifique_OLV1_Benchmark.html
+│   └── RESUME_EXPLICATION_PROJET_ENFANT.html   # Vulgarisation pédagogique illustrée
 │
 ├── 📂 resultats_tests/                         # 🔬 Captures d'écrans des tests, crops et benchmarks
 │   ├── screenshot_zoom19_full.png              # Détection cadastrale haute résolution
