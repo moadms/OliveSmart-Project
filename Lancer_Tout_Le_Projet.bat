@@ -15,10 +15,10 @@ echo =======================================================================
 echo.
 
 echo [1/3] Demarrage du Moteur IA Python (Port 8000)...
-start "OliveSmart AI Engine :8000" cmd /k "cd /d "%SCRIPT_DIR%" && uv run --with ultralytics --with opencv-python --with numpy python ai_engine_server.py"
+start "OliveSmart AI Engine :8000" cmd /k "cd /d "%SCRIPT_DIR%" && (if exist venv\Scripts\activate.bat (call venv\Scripts\activate.bat) else if exist .venv\Scripts\activate.bat (call .venv\Scripts\activate.bat)) && python ai_engine_server.py"
 
 echo [2/3] Demarrage du Microservice Spring Boot (Port 8080)...
-start "OliveSmart Spring Boot :8080" cmd /k "cd /d "%SCRIPT_DIR%\springboot-microservice-olive" && java -jar target\olivesmart-detection-microservice-1.0.0.jar --server.port=8080"
+start "OliveSmart Spring Boot :8080" cmd /k "cd /d "%SCRIPT_DIR%\springboot-microservice-olive" && (if exist target\olivesmart-detection-microservice-1.0.0.jar (java -jar target\olivesmart-detection-microservice-1.0.0.jar --server.port=8080) else (mvn spring-boot:run))"
 
 echo [3/3] Demarrage du Frontend React (Port 3000)...
 start "OliveSmart Frontend :3000" cmd /k "cd /d "%SCRIPT_DIR%\frontend-react" && node server.js"

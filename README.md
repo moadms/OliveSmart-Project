@@ -172,14 +172,20 @@ Lancer_Tout_Le_Projet.bat
 
 #### A. Moteur d'IA Python (Port 8000)
 ```bash
-uv run --with ultralytics --with opencv-python --with numpy python ai_engine_server.py
+# Installation des dépendances (une seule fois) :
+pip install -r requirements.txt
+
+# Lancement du serveur IA :
+python ai_engine_server.py
 ```
 *Vérification :* `http://localhost:8000/health` $\rightarrow$ `{"status": "UP"}`.
 
 #### B. Microservice Spring Boot (Port 8080)
 ```bash
-java -jar springboot-microservice-olive/target/olivesmart-detection-microservice-1.0.0.jar --server.port=8080
+cd springboot-microservice-olive
+mvn spring-boot:run
 ```
+*(ou si le JAR est compilé : `java -jar target/olivesmart-detection-microservice-1.0.0.jar`)*  
 *Vérification :* `http://localhost:8080/api/v1/parcelles/metriques-modele`.
 
 #### C. Application Web React (Port 3000)
@@ -187,6 +193,7 @@ java -jar springboot-microservice-olive/target/olivesmart-detection-microservice
 cd frontend-react
 node server.js
 ```
+*(Aucun `npm install` requis, les bibliothèques CDN React 18, Leaflet et Tailwind s'exécutent directement).*  
 *Accès dans votre navigateur :* **[`http://localhost:3000`](http://localhost:3000)**.
 
 ---
