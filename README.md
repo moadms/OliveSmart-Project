@@ -149,36 +149,50 @@ Durant les phases de test sur le terrain, trois anomalies de vision par ordinate
 
 ---
 
+## 👨‍🏫 Guide Spécial pour l'Encadrant / Évaluateur (Lors du Clone)
+
+> [!TIP]
+> **Monsieur l'Encadrant (Pr. Mohamed Lachgar),**  
+> Ce projet a été pré-packagé pour vous permettre de tester l'intégralité du système sans configuration complexe ni téléchargement lourd :
+> 1. **Poids IA inclus :** Le modèle fine-tuné (`best.pt`) est déjà dans le dépôt Git (pas besoin de réentraîner).
+> 2. **Zéro `npm install` :** Le frontend React utilise les CDN officiels React 18, Leaflet et Tailwind.
+> 3. **Lancement 1-Clic :** Double-cliquez sur `Lancer_Tout_Le_Projet.bat` pour démarrer les 3 microservices.
+
+### Ce dont vous avez besoin sur votre machine :
+* **Python 3.10 ou 3.11** avec `pip`
+* **Java JDK 17 ou 21** avec `Maven`
+* **Node.js v18+**
+* **Git**
+
+---
+
 ## 💻 Guide de Démarrage Rapide (Cloner & Lancer)
 
-### 1. Prérequis
-* **Node.js** (v18+) : [nodejs.org](https://nodejs.org)
-* **Python** (v3.10 ou v3.11) avec `uv` ou `pip` : [python.org](https://python.org)
-* **Java JDK** (v17 ou v21) : [adoptium.net](https://adoptium.net)
-
-### 2. Cloner le Dépôt
+### 1. Cloner le Dépôt
 ```bash
 git clone https://github.com/moadms/OliveSmart-Project.git
 cd OliveSmart-Project
 ```
 
+### 2. Installer les Dépendances Python (1 seule fois)
+```bash
+pip install -r requirements.txt
+```
+
 ### 3. Lancer en 1 Clic (Windows)
-Double-cliquez simplement sur :
+Double-cliquez simplement sur le fichier :
 ```text
 Lancer_Tout_Le_Projet.bat
 ```
+*(Le script démarre automatiquement l'IA sur le port 8000, Spring Boot sur le port 8080 et React sur le port 3000, puis ouvre votre navigateur).*
 
-### 4. Ou Lancement Manuel par Terminal :
+### 4. Ou Lancement Manuel par Terminal (3 Fenêtres) :
 
 #### A. Moteur d'IA Python (Port 8000)
 ```bash
-# Installation des dépendances (une seule fois) :
-pip install -r requirements.txt
-
-# Lancement du serveur IA :
 python ai_engine_server.py
 ```
-*Vérification :* `http://localhost:8000/health` $\rightarrow$ `{"status": "UP"}`.
+*Test de santé :* `http://localhost:8000/health` $\rightarrow$ `{"status": "UP"}`.
 
 #### B. Microservice Spring Boot (Port 8080)
 ```bash
@@ -186,25 +200,25 @@ cd springboot-microservice-olive
 mvn spring-boot:run
 ```
 *(ou si le JAR est compilé : `java -jar target/olivesmart-detection-microservice-1.0.0.jar`)*  
-*Vérification :* `http://localhost:8080/api/v1/parcelles/metriques-modele`.
+*Test API :* `http://localhost:8080/api/v1/parcelles/metriques-modele`.
 
 #### C. Application Web React (Port 3000)
 ```bash
 cd frontend-react
 node server.js
 ```
-*(Aucun `npm install` requis, les bibliothèques CDN React 18, Leaflet et Tailwind s'exécutent directement).*  
 *Accès dans votre navigateur :* **[`http://localhost:3000`](http://localhost:3000)**.
 
 ---
 
 ## 📁 Organisation Propre du Projet
 
-Pour une clarté maximale lors de l'évaluation et de la maintenance, le répertoire est rigoureusement structuré :
+Pour une clarté maximale lors de l'évaluation et de la soutenance, le répertoire est rigoureusement structuré :
 
 ```
 OliveSmart-Project/
 ├── 📄 README.md                                # Guide complet d'installation et architecture
+├── 📋 requirements.txt                         # Dépendances Python prêtes à l'emploi
 ├── 🚀 Lancer_Tout_Le_Projet.bat                 # Lanceur tout-en-un (Python + Spring Boot + React)
 ├── 🧠 ai_engine_server.py                      # Microservice IA Vision (Port 8000)
 ├── ⚖️ best.pt                                   # Poids du modèle YOLO11 fine-tuné
@@ -217,8 +231,8 @@ OliveSmart-Project/
 │   └── RAPPORT_SCIENTIFIQUE_ARCHITECTURE_SYSTEME.pdf
 │
 ├── 📂 rapports_html/                           # 🌐 Rapports d'analyse et diaporamas interactifs (HTML)
-│   ├── PRESENTATION_REUNION_PROF_LACHGAR.html  # Présentation interactive / vidéo pour le professeur
-│   └── RESUME_EXPLICATION_PROJET_ENFANT.html   # Vulgarisation pédagogique illustrée
+│   ├── Preparation_Reunion_Encadrant_Pr_Lachgar.html # Support officiel interactif pour la réunion
+│   └── Synthese_Pedagogique_Fonctionnement_OliveSmart.html # Vulgarisation pédagogique illustrée
 │
 ├── 📂 resultats_tests/                         # 🔬 Captures d'écrans des tests, crops et benchmarks
 │   ├── screenshot_zoom19_full.png              # Détection cadastrale haute résolution
@@ -239,8 +253,8 @@ OliveSmart-Project/
 Le dépôt contient l'ensemble des documents scientifiques et supports de soutenance :
 * 📄 **[`rapports_et_articles_pdf/ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf`](rapports_et_articles_pdf/ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf)** : Article scientifique officiel de 7 pages au format académique standard **Noir & Blanc / Monochrome** (titres noirs, tableaux booktabs, bibliographie avec DOI).
 * 📑 **[`rapports_et_articles_pdf/RAPPORT_TECHNIQUE_OLIVESMART_SYSTEME.pdf`](rapports_et_articles_pdf/RAPPORT_TECHNIQUE_OLIVESMART_SYSTEME.pdf)** : Rapport technique d'ingénierie système et benchmarks IA.
-* 🎬 **[`rapports_html/PRESENTATION_REUNION_PROF_LACHGAR.html`](rapports_html/PRESENTATION_REUNION_PROF_LACHGAR.html)** : Support de soutenance interactif avec mode diaporama et mode vidéo automatique pour la réunion avec Pr. Mohamed Lachgar.
-* 💡 **[`rapports_html/RESUME_EXPLICATION_PROJET_ENFANT.html`](rapports_html/RESUME_EXPLICATION_PROJET_ENFANT.html)** : Guide de vulgarisation ludique et illustré.
+* 🎬 **[`rapports_html/Preparation_Reunion_Encadrant_Pr_Lachgar.html`](rapports_html/Preparation_Reunion_Encadrant_Pr_Lachgar.html)** : Support de réunion interactif avec mode diaporama et mode vidéo automatique pour la réunion avec Pr. Mohamed Lachgar.
+* 💡 **[`rapports_html/Synthese_Pedagogique_Fonctionnement_OliveSmart.html`](rapports_html/Synthese_Pedagogique_Fonctionnement_OliveSmart.html)** : Synthèse pédagogique illustrée et vulgarisée du fonctionnement du système.
 * 🔬 **[`resultats_tests/`](resultats_tests/)** : Dossier regroupant toutes les captures d'écran, visualisations d'expérimentation et preuves de validation.
 * 🛰️ **[`olive_tree_yolo11_training_colab.ipynb`](olive_tree_yolo11_training_colab.ipynb)** : Notebook Jupyter prêt à l'emploi sur Google Colab GPU.
 

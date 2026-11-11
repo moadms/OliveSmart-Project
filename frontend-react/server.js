@@ -19,7 +19,10 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer((req, res) => {
-    let filePath = path.join(PUBLIC_DIR, req.url === '/' ? 'index.html' : req.url);
+    let reqPath = req.url === '/' ? '/index.html' : req.url.split('?')[0];
+    if (reqPath === '/presentation_prof.html') reqPath = '/Preparation_Reunion_Encadrant_Pr_Lachgar.html';
+    if (reqPath === '/guide_explication.html') reqPath = '/Synthese_Pedagogique_Fonctionnement_OliveSmart.html';
+    let filePath = path.join(PUBLIC_DIR, reqPath);
     const ext = path.extname(filePath).toLowerCase();
     const contentType = MIME_TYPES[ext] || 'application/octet-stream';
 
