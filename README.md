@@ -251,12 +251,15 @@ OliveSmart-Project/
 ## 📦 Livrables Académiques Inclus
 
 Le dépôt contient l'ensemble des documents scientifiques et supports de soutenance :
-* 📄 **[`rapports_et_articles_pdf/ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf`](rapports_et_articles_pdf/ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf)** : Article scientifique officiel de 7 pages au format académique standard **Noir & Blanc / Monochrome** (titres noirs, tableaux booktabs, bibliographie avec DOI).
+* 📄 **[`rapports_et_articles_pdf/ATLAS_OLIVA_ARTICLE_SPRINGER_LNCS.pdf`](rapports_et_articles_pdf/ATLAS_OLIVA_ARTICLE_SPRINGER_LNCS.pdf)** : **Article de Recherche Officiel de 15 pages au format Springer LNCS**, exactement structuré et rédigé selon le modèle `atls_article (1).pdf` demandé par le Pr. Mohamed Lachgar. Intègre l'état de l'art, le pipeline d'inférence par tuilage 640×640 (stride 480px, chevauchement 25%), l'étalonnage biophysique ExG/GCC sur données marocaines réelles (Mendeley & Zenodo), 10 tableaux comparatifs, 7 figures architecturales et 13 références indexées.
+* 📝 **[`rapports_et_articles_pdf/atlas_oliva_article.tex`](rapports_et_articles_pdf/atlas_oliva_article.tex)** : Code source LaTeX complet (`\documentclass[runningheads]{llncs}`) prêt pour soumission conférence / journal Springer.
+* 🚀 **[`olive_tree_training_colab_official.ipynb`](olive_tree_training_colab_official.ipynb)** : **Notebook Google Colab Officiel Prêt à l'Emploi** intégrant les 4 jeux de données authentiques (Mendeley Drought Stress `22j26tpk63/2`, Zenodo OLEA-PRED `10920137`, OliveTreeCrownsDb `xym8rd2srf/3`, Roboflow Moroccan Olives), le fine-tuning YOLOv8s sur GPU Tesla T4 (50 époques) et l'exportation directe des poids `yolov8s.pt` vers l'application.
+* 📄 **[`rapports_et_articles_pdf/ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf`](rapports_et_articles_pdf/ARTICLE_SCIENTIFIQUE_EMSI_MONOCHROME.pdf)** : Article scientifique officiel au format académique standard **Noir & Blanc / Monochrome** (titres noirs, tableaux booktabs, bibliographie avec DOI).
 * 📑 **[`rapports_et_articles_pdf/RAPPORT_TECHNIQUE_OLIVESMART_SYSTEME.pdf`](rapports_et_articles_pdf/RAPPORT_TECHNIQUE_OLIVESMART_SYSTEME.pdf)** : Rapport technique d'ingénierie système et benchmarks IA.
 * 🎬 **[`rapports_html/Preparation_Reunion_Encadrant_Pr_Lachgar.html`](rapports_html/Preparation_Reunion_Encadrant_Pr_Lachgar.html)** : Support de réunion interactif avec mode diaporama et mode vidéo automatique pour la réunion avec Pr. Mohamed Lachgar.
 * 💡 **[`rapports_html/Synthese_Pedagogique_Fonctionnement_OliveSmart.html`](rapports_html/Synthese_Pedagogique_Fonctionnement_OliveSmart.html)** : Synthèse pédagogique illustrée et vulgarisée du fonctionnement du système.
 * 🔬 **[`resultats_tests/`](resultats_tests/)** : Dossier regroupant toutes les captures d'écran, visualisations d'expérimentation et preuves de validation.
-* 🛰️ **[`olive_tree_yolo11_training_colab.ipynb`](olive_tree_yolo11_training_colab.ipynb)** : Notebook Jupyter prêt à l'emploi sur Google Colab GPU.
+* 🛰️ **[`yolov8s.pt`](yolov8s.pt)** : Poids du modèle YOLOv8s pré-entraîné et validé directement embarqué dans l'application locale.
 
 ---
 

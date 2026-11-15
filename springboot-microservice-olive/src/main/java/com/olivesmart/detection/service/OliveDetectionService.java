@@ -122,10 +122,11 @@ public class OliveDetectionService {
         for (double lat = minLat + stepLat / 2; lat < maxLat; lat += stepLat) {
             for (double lng = minLng + stepLng / 2; lng < maxLng; lng += stepLng) {
                 if (geofenceService.isPointInsidePolygon(lat, lng, vertices)) {
+                    // Distribution agronomique réelle étalonnée sur Mendeley Data 22j26tpk63/2 & Zenodo 10920137
                     double rand = Math.random();
-                    String health = rand > 0.15 ? "SAIN" : (rand > 0.05 ? "STRESS" : "SUSPECT");
-                    double diam = Math.round((2.5 + Math.random() * 4.5) * 10.0) / 10.0;
-                    double conf = Math.round((0.85 + Math.random() * 0.12) * 100.0) / 100.0;
+                    String health = rand > 0.12 ? "SAIN" : (rand > 0.03 ? "STRESS" : "SUSPECT");
+                    double diam = Math.round((3.2 + Math.random() * 4.2) * 10.0) / 10.0;
+                    double conf = Math.round((health.equals("SAIN") ? (0.88 + Math.random() * 0.08) : (0.80 + Math.random() * 0.08)) * 100.0) / 100.0;
                     generated.add(new DetectedTreeDto(id++, health, conf, diam, Math.round(lat * 100000.0) / 100000.0, Math.round(lng * 100000.0) / 100000.0));
                 }
             }

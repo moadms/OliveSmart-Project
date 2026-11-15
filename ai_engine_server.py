@@ -26,6 +26,12 @@ class OliveDetectionHandler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps({'status': 'UP', 'model': 'YOLOv8m_CA_Satellite_HD_v2'}).encode('utf-8'))
+        elif self.path in ['/v1/models', '/models']:
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps({'data': [{'id': 'YOLOv8m_CA_Satellite_HD_v2', 'object': 'model'}]}).encode('utf-8'))
         else:
             self.send_response(404)
             self.end_headers()
@@ -98,10 +104,14 @@ def run_server():
     print(f"==================================================================")
     print(f"[AI Service] Threading Python AI Server live on http://0.0.0.0:{PORT}")
     print(f"==================================================================")
-    try:
-        httpd.serve_forever()
-    except KeyboardInterrupt:
-        pass
+    while True:
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            break
+        except Exception as e:
+            print(f"[AI Server Loop Warning]: {e}")
+            time.sleep(1)
     httpd.server_close()
 
 if __name__ == '__main__':
