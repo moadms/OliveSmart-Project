@@ -430,17 +430,20 @@ def detect_trees_in_polygon(vertices, zoom=19):
         crown_area_m2 = round(math.pi * ((diam_m / 2.0) ** 2), 1)
 
         # Diagnostic de santé agronomique étalonné sur les mesures in-situ :
-        # - SAIN : Indice foliaire vert élevé (ExG >= 9.0 et GCC >= 0.352), vigueur active
-        # - STRESS (Hydrique) : Chlorose légère et déficit en eau (2.0 <= ExG < 9.0 ou 0.320 <= GCC < 0.352)
-        # - SUSPECT (Pathologique / Dépérissement) : Nécrose foliaire, branches desséchées (ExG < 2.0 et GCC < 0.320)
+        # - SAIN (0) : Indice foliaire vert élevé (ExG >= 9.0 et GCC >= 0.352), vigueur active
+        # - STRESS (1) : Chlorose légère et déficit en eau (2.0 <= ExG < 9.0 ou 0.320 <= GCC < 0.352)
+        # - SUSPECT (2) : Nécrose foliaire, branches desséchées, non clair (ExG < 2.0 et GCC < 0.320)
         if sub_exg >= 9.0 and gcc >= 0.352:
             health = "SAIN"
+            class_id = 0
             tree_conf = round(min(0.95, max(0.85, 0.82 + (sub_exg / 80.0) * 0.13)), 2)
         elif sub_exg >= 2.0 and gcc >= 0.320:
             health = "STRESS"
+            class_id = 1
             tree_conf = round(min(0.90, max(0.79, 0.77 + (gcc - 0.320) * 3.5)), 2)
         else:
             health = "SUSPECT"
+            class_id = 2
             tree_conf = round(min(0.88, max(0.74, 0.72 + max(0.0, sub_exg) * 0.05)), 2)
 
         # Catégorie d'âge
@@ -460,6 +463,13 @@ def detect_trees_in_polygon(vertices, zoom=19):
             "lng_min": lng_min,
             "lng_max": lng_max,
             "box": [lat_min, lng_min, lat_max, lng_max],
+            "center": {
+                "lat": round(lat, 6),
+                "lng": round(lng, 6),
+                "px_x": round(float(cx), 2),
+                "px_y": round(float(cy), 2)
+            },
+            "class_id": class_id,
             "diam": diam_m,
             "crownDiameterMeters": diam_m,
             "crownAreaM2": crown_area_m2,
