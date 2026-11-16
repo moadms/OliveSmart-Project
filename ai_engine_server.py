@@ -43,7 +43,7 @@ class OliveDetectionHandler(BaseHTTPRequestHandler):
             start_time = time.time()
             try:
                 data = json.loads(body.decode('utf-8'))
-                vertices = data.get('vertices', [])
+                vertices = data.get('vertices') or data.get('polygon') or []
                 print(f"[AI Service] Processing polygon with {len(vertices)} vertices")
                 
                 # Run computer vision detection on satellite tiles
