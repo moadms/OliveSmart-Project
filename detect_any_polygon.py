@@ -22,14 +22,22 @@ def get_yolo_model():
     if _YOLO_MODEL is None:
         try:
             from ultralytics import YOLO
-            model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'best.pt')
-            if os.path.exists(model_path):
-                print(f"[YOLO Engine] Loading trained YOLO weights from {model_path}...")
-                _YOLO_MODEL = YOLO(model_path)
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            candidates = ['best_yolo11s.pt', 'yolo11s.pt', 'best.pt', 'yolov8s.pt']
+            selected_path = None
+            for cand in candidates:
+                p = os.path.join(base_dir, cand)
+                if os.path.exists(p):
+                    selected_path = p
+                    break
+            
+            if selected_path:
+                print(f"[YOLO Engine] Loading state-of-the-art weights from {selected_path}...")
+                _YOLO_MODEL = YOLO(selected_path)
                 # Warm up model on dummy image for sub-second first inference
                 dummy = np.zeros((640, 640, 3), dtype=np.uint8)
                 _YOLO_MODEL.predict(dummy, imgsz=640, verbose=False)
-                print("[YOLO Engine] YOLO model loaded and warmed up successfully!")
+                print(f"[YOLO Engine] Loaded {os.path.basename(selected_path)} successfully!")
         except Exception as e:
             print(f"[YOLO Engine Warning] Failed to load YOLO model: {e}")
             _YOLO_MODEL = None
