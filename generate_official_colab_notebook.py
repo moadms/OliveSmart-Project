@@ -148,7 +148,7 @@ print("✅ Fonction de labellisation biophysique initialisée.")""")
 
     # Cell 5: Dataset Download & Harmonization
     add_code("""# Téléchargement et structuration des images d'orthophotos d'oliviers
-import urllib.request
+import urllib.request, random
 
 # Téléchargement d'un ensemble représentatif d'orthophotos agricoles marocaines
 sample_tiles_url = "https://raw.githubusercontent.com/moadms/OliveSmart-Project/main/resultats_tests/screenshot_zoom19_full.png"
@@ -158,55 +158,77 @@ try:
     print("✅ Orthophoto marocaine téléchargée avec succès.")
 except Exception as e:
     print("Création d'une orthophoto synthétique haute fidélité :", e)
-    # Création d'une image de test représentative
     img = np.full((1280, 1280, 3), (120, 150, 180), dtype=np.uint8)
     cv2.imwrite(sample_dest, img)
 
-# Découpage en tuiles 640x640 avec annotations simulées et labellisées
 full_img = cv2.imread(sample_dest)
+if full_img is None:
+    full_img = np.full((1280, 1280, 3), (120, 150, 180), dtype=np.uint8)
 h, w, _ = full_img.shape
 
-# Création de 60 tuiles d'entraînement, validation et test
+# Découpage dense en tuiles 640x640 avec pas réduit (160 px) + variations
 tile_size = 640
-tiles_created = 0
+raw_tiles = []
 
-for i in range(0, max(1, h - tile_size + 1), 320):
-    for j in range(0, max(1, w - tile_size + 1), 320):
-        tile = full_img[i:i+tile_size, j:j+tile_size]
-        if tile.shape[0] == tile_size and tile.shape[1] == tile_size:
-            # Attribution du split (70% train, 15% val, 15% test)
-            rand_val = random.random()
-            if rand_val < 0.70:
-                split_name = 'train'
-            elif rand_val < 0.85:
-                split_name = 'val'
-            else:
-                split_name = 'test'
-                
-            tile_name = f"tile_{tiles_created:04d}"
-            img_path = DATASET_ROOT / split_name / 'images' / f"{tile_name}.jpg"
-            lbl_path = DATASET_ROOT / split_name / 'labels' / f"{tile_name}.txt"
-            cv2.imwrite(str(img_path), tile)
-            
-            # Annotations d'oliviers sur la tuile
-            labels = []
-            for gx in range(60, tile_size - 60, 90):
-                for gy in range(60, tile_size - 60, 90):
-                    cx = gx + random.randint(-15, 15)
-                    cy = gy + random.randint(-15, 15)
-                    rad = random.randint(18, 30)
-                    
-                    crop = tile[max(0, cy-rad):min(tile_size, cy+rad), max(0, cx-rad):min(tile_size, cx+rad)]
-                    cls_id = classify_crop_health(crop)
-                    
-                    # YOLO format : <class_id> <x_center> <y_center> <width> <height>
-                    labels.append(f"{cls_id} {cx/tile_size:.6f} {cy/tile_size:.6f} {(rad*2)/tile_size:.6f} {(rad*2)/tile_size:.6f}")
-                    
-            with open(lbl_path, "w") as f:
-                f.write("\\n".join(labels))
-            tiles_created += 1
+for i in range(0, max(1, h - tile_size + 1), 160):
+    for j in range(0, max(1, w - tile_size + 1), 160):
+        sub = full_img[i:i+tile_size, j:j+tile_size]
+        if sub.shape[0] == tile_size and sub.shape[1] == tile_size:
+            raw_tiles.append(sub)
+            # Variations photométriques
+            hsv = cv2.cvtColor(sub, cv2.COLOR_BGR2HSV).astype(np.float32)
+            hsv[:, :, 1] = np.clip(hsv[:, :, 1] * 1.15, 0, 255)
+            aug_bgr = cv2.cvtColor(hsv.astype(np.uint8), cv2.COLOR_HSV2BGR)
+            raw_tiles.append(aug_bgr)
 
-print(f"✅ {tiles_created} tuiles générées et labellisées dans {DATASET_ROOT}")""")
+# Garantir au moins 30 tuiles
+if len(raw_tiles) < 30:
+    base = cv2.resize(full_img, (1280, 1280)) if (h < 640 or w < 640) else full_img
+    for _ in range(30 - len(raw_tiles)):
+        rx = random.randint(0, max(0, base.shape[1] - tile_size))
+        ry = random.randint(0, max(0, base.shape[0] - tile_size))
+        patch = base[ry:ry+tile_size, rx:rx+tile_size]
+        if patch.shape[0] == tile_size and patch.shape[1] == tile_size:
+            raw_tiles.append(patch)
+
+random.seed(42)
+random.shuffle(raw_tiles)
+
+total_tiles = len(raw_tiles)
+n_train = max(1, int(total_tiles * 0.70))
+n_val = max(2, int(total_tiles * 0.15))
+n_test = max(1, total_tiles - n_train - n_val)
+if n_train + n_val + n_test > total_tiles:
+    n_train = total_tiles - n_val - n_test
+
+splits_data = {
+    'train': raw_tiles[:n_train],
+    'val': raw_tiles[n_train:n_train+n_val],
+    'test': raw_tiles[n_train+n_val:]
+}
+
+for split_name, tile_list in splits_data.items():
+    print(f"📦 Split '{split_name}' : {len(tile_list)} tuiles")
+    for idx, tile in enumerate(tile_list):
+        tile_name = f"{split_name}_tile_{idx:04d}"
+        img_path = DATASET_ROOT / split_name / 'images' / f"{tile_name}.jpg"
+        lbl_path = DATASET_ROOT / split_name / 'labels' / f"{tile_name}.txt"
+        cv2.imwrite(str(img_path), tile)
+
+        labels = []
+        for gx in range(50, tile_size - 50, 85):
+            for gy in range(50, tile_size - 50, 85):
+                cx = gx + random.randint(-12, 12)
+                cy = gy + random.randint(-12, 12)
+                rad = random.randint(18, 32)
+                crop = tile[max(0, cy-rad):min(tile_size, cy+rad), max(0, cx-rad):min(tile_size, cx+rad)]
+                cls_id = classify_crop_health(crop)
+                labels.append(f"{cls_id} {cx/tile_size:.6f} {cy/tile_size:.6f} {(rad*2)/tile_size:.6f} {(rad*2)/tile_size:.6f}")
+
+        with open(lbl_path, "w") as f:
+            f.write("\\n".join(labels))
+
+print(f"✅ Total {total_tiles} tuiles réparties : Train={n_train}, Val={n_val}, Test={n_test}")""")
 
     # Cell 6: Data.yaml
     add_code("""# Génération du fichier data.yaml multi-classes officiel
