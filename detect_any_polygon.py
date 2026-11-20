@@ -289,7 +289,7 @@ def detect_trees_in_polygon(vertices, zoom=19):
         # Vérifier que ce sommet n'est pas déjà couvert par une boîte YOLO
         if all(math.hypot(pcx - ycx, pcy - ycy) >= min_dist_px for ycx, ycy, _, _, _, _, _ in yolo_trees):
             if all(math.hypot(pcx - rcx, pcy - rcy) >= min_dist_px for rcx, rcy, _, _, _, _, _ in recovered_trees):
-                rad = max(8, int(round(d_val * 1.30)))
+                rad = max(5, min(13, int(round(d_val * 1.08))))
                 rx1 = max(0, int(pcx - rad))
                 rx2 = min(W_mos - 1, int(pcx + rad))
                 ry1 = max(0, int(pcy - rad))
@@ -389,11 +389,17 @@ def detect_trees_in_polygon(vertices, zoom=19):
                 ncx = (mcx + cx) / 2.0
                 ncy = (mcy + cy) / 2.0
 
-            # Rayon élargi pour bien englober tout le houppier (branches et feuillage complet)
+            # Ajustement serré du cadre sur le houppier réel uniquement (sans déborder sur le sol)
+            d_local = float(dist_smooth[max(0, min(H_mos - 1, int(round(ncy)))), max(0, min(W_mos - 1, int(round(ncx))))])
             raw_w = (max(mx2, x2) - min(mx1, x1)) / 2.0
             raw_h = (max(my2, y2) - min(my1, y1)) / 2.0
-            rw = min(18.0, max(12.0, raw_w * 1.25))
-            rh = min(18.0, max(12.0, raw_h * 1.25))
+            if d_local >= 2.0:
+                target_r = max(5.5, min(13.5, d_local * 1.08))
+                rw = min(target_r, max(5.5, raw_w * 0.92))
+                rh = min(target_r, max(5.5, raw_h * 0.92))
+            else:
+                rw = min(12.5, max(5.5, raw_w * 0.88))
+                rh = min(12.5, max(5.5, raw_h * 0.88))
             nx1 = max(0.0, ncx - rw)
             ny1 = max(0.0, ncy - rh)
             nx2 = min(float(W_mos), ncx + rw)
@@ -401,11 +407,17 @@ def detect_trees_in_polygon(vertices, zoom=19):
 
             merged_trees[matched_idx] = (ncx, ncy, nx1, ny1, nx2, ny2, nconf)
         else:
-            # Recentre et normalise la boîte initiale avec un rayon élargi confortable
-            cur_w = x2 - x1
-            cur_h = y2 - y1
-            rw = min(18.0, max(12.0, (cur_w / 2.0) * 1.25))
-            rh = min(18.0, max(12.0, (cur_h / 2.0) * 1.25))
+            # Cadre serré calibré sur le rayon foliaire réel de l'arbre
+            d_local = float(dist_smooth[max(0, min(H_mos - 1, int(round(cy)))), max(0, min(W_mos - 1, int(round(cx))))])
+            cur_w = (x2 - x1) / 2.0
+            cur_h = (y2 - y1) / 2.0
+            if d_local >= 2.0:
+                target_r = max(5.5, min(13.5, d_local * 1.08))
+                rw = min(target_r, max(5.5, cur_w * 0.92))
+                rh = min(target_r, max(5.5, cur_h * 0.92))
+            else:
+                rw = min(12.5, max(5.5, cur_w * 0.88))
+                rh = min(12.5, max(5.5, cur_h * 0.88))
             nx1 = max(0.0, cx - rw)
             ny1 = max(0.0, cy - rh)
             nx2 = min(float(W_mos), cx + rw)
