@@ -17,13 +17,32 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 # YOLO Model singleton
 _YOLO_MODEL = None
 
+_HEALTH_MODEL = None
+
+def get_health_model():
+    global _HEALTH_MODEL
+    if _HEALTH_MODEL is None:
+        try:
+            from ultralytics import YOLO
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            candidates = ['best_yolo11s_health.pt', 'yolo11s_health.pt']
+            for cand in candidates:
+                p = os.path.join(base_dir, cand)
+                if os.path.exists(p):
+                    print(f"[YOLO Engine] Loading dedicated health classifier from {p}...")
+                    _HEALTH_MODEL = YOLO(p)
+                    break
+        except Exception as e:
+            _HEALTH_MODEL = None
+    return _HEALTH_MODEL
+
 def get_yolo_model():
     global _YOLO_MODEL
     if _YOLO_MODEL is None:
         try:
             from ultralytics import YOLO
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            candidates = ['best_yolo11s.pt', 'yolo11s.pt', 'best.pt', 'yolov8s.pt']
+            candidates = ['best_yolo11s_detector.pt', 'best_yolo11s.pt', 'yolo11s.pt', 'best.pt', 'yolov8s.pt']
             selected_path = None
             for cand in candidates:
                 p = os.path.join(base_dir, cand)
@@ -437,22 +456,35 @@ def detect_trees_in_polygon(vertices, zoom=19):
 
         crown_area_m2 = round(math.pi * ((diam_m / 2.0) ** 2), 1)
 
-        # Diagnostic de santé agronomique étalonné sur les mesures in-situ :
-        # - SAIN (0) : Indice foliaire vert élevé (ExG >= 9.0 et GCC >= 0.352), vigueur active
-        # - STRESS (1) : Chlorose légère et déficit en eau (2.0 <= ExG < 9.0 ou 0.320 <= GCC < 0.352)
-        # - SUSPECT (2) : Nécrose foliaire, branches desséchées, non clair (ExG < 2.0 et GCC < 0.320)
-        if sub_exg >= 9.0 and gcc >= 0.352:
-            health = "SAIN"
-            class_id = 0
-            tree_conf = round(min(0.95, max(0.85, 0.82 + (sub_exg / 80.0) * 0.13)), 2)
-        elif sub_exg >= 2.0 and gcc >= 0.320:
-            health = "STRESS"
-            class_id = 1
-            tree_conf = round(min(0.90, max(0.79, 0.77 + (gcc - 0.320) * 3.5)), 2)
-        else:
-            health = "SUSPECT"
-            class_id = 2
-            tree_conf = round(min(0.88, max(0.74, 0.72 + max(0.0, sub_exg) * 0.05)), 2)
+        # Diagnostic de santé agronomique (Classifieur IA ou Indices Biophysiques étalonnés)
+        h_model = get_health_model()
+        if h_model is not None:
+            try:
+                crop = mosaic[max(0, int(y1)):min(H_mos, int(y2)), max(0, int(x1)):min(W_mos, int(x2))]
+                if crop.size > 0:
+                    cls_res = h_model.predict(source=crop, imgsz=128, verbose=False)[0]
+                    c_name = cls_res.names[cls_res.probs.top1].upper()
+                    health = "SAIN" if "SAIN" in c_name else ("STRESS" if "STRESS" in c_name else "SUSPECT")
+                    class_id = 0 if health == "SAIN" else (1 if health == "STRESS" else 2)
+                    tree_conf = round(float(cls_res.probs.top1conf), 2)
+                else:
+                    health, class_id, tree_conf = "SAIN", 0, 0.88
+            except Exception:
+                h_model = None
+
+        if h_model is None:
+            if sub_exg >= 9.0 and gcc >= 0.352:
+                health = "SAIN"
+                class_id = 0
+                tree_conf = round(min(0.95, max(0.85, 0.82 + (sub_exg / 80.0) * 0.13)), 2)
+            elif sub_exg >= 2.0 and gcc >= 0.320:
+                health = "STRESS"
+                class_id = 1
+                tree_conf = round(min(0.90, max(0.79, 0.77 + (gcc - 0.320) * 3.5)), 2)
+            else:
+                health = "SUSPECT"
+                class_id = 2
+                tree_conf = round(min(0.88, max(0.74, 0.72 + max(0.0, sub_exg) * 0.05)), 2)
 
         # Catégorie d'âge
         if diam_m < 3.8:
