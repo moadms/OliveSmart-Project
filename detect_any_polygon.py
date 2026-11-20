@@ -407,6 +407,17 @@ def detect_trees_in_polygon(vertices, zoom=19):
 
             merged_trees[matched_idx] = (ncx, ncy, nx1, ny1, nx2, ny2, nconf)
         else:
+            # Recentrage exact sur l'apex du houppier (sommet de dist_smooth dans la boîte)
+            sub_x1 = max(0, int(round(x1)))
+            sub_y1 = max(0, int(round(y1)))
+            sub_x2 = min(W_mos, int(round(x2)))
+            sub_y2 = min(H_mos, int(round(y2)))
+            sub_d = dist_smooth[sub_y1:sub_y2, sub_x1:sub_x2]
+            if sub_d.size > 0 and np.max(sub_d) >= 1.5:
+                _, _, _, max_loc = cv2.minMaxLoc(sub_d)
+                cx = float(sub_x1 + max_loc[0])
+                cy = float(sub_y1 + max_loc[1])
+
             # Cadre serré calibré sur le rayon foliaire réel de l'arbre
             d_local = float(dist_smooth[max(0, min(H_mos - 1, int(round(cy)))), max(0, min(W_mos - 1, int(round(cx))))])
             cur_w = (x2 - x1) / 2.0

@@ -5894,18 +5894,18 @@
 
                 let bounds;
                 if (latMin && latMax && lngMin && lngMax) {
-                    // Cadre élargi (+20%) pour bien englober l'ensemble du feuillage étendu
-                    const latCenter = (latMin + latMax) / 2.0;
-                    const lngCenter = (lngMin + lngMax) / 2.0;
-                    const halfLat = Math.max((latMax - latMin) * 0.60, 3.4 / 111320.0);
-                    const halfLng = Math.max((lngMax - lngMin) * 0.60, 3.4 / (111320.0 * Math.cos(latCenter * Math.PI / 180.0)));
+                    // Cadre exact et serré centré sur l'apex du houppier (sans élargissement artificiel)
+                    const latCenter = tree.lat ?? ((latMin + latMax) / 2.0);
+                    const lngCenter = tree.lng ?? ((lngMin + lngMax) / 2.0);
+                    const halfLat = Math.max((latMax - latMin) * 0.50, 1.3 / 111320.0);
+                    const halfLng = Math.max((lngMax - lngMin) * 0.50, 1.3 / (111320.0 * Math.cos(latCenter * Math.PI / 180.0)));
                     bounds = [
                         [latCenter - halfLat, lngCenter - halfLng],
                         [latCenter + halfLat, lngCenter + halfLng]
                     ];
                 } else {
-                    const crownDiam = (tree.diam || tree.crownDiameterMeters || 6.8);
-                    const halfMeters = Math.max(3.4, (crownDiam / 2.0) * 1.20);
+                    const crownDiam = (tree.diam || tree.crownDiameterMeters || 4.0);
+                    const halfMeters = Math.max(1.3, crownDiam / 2.0);
                     const dLat = halfMeters / 111320.0;
                     const dLng = halfMeters / (111320.0 * Math.cos(tree.lat * Math.PI / 180.0));
                     bounds = [
