@@ -1,0 +1,162 @@
+\documentclass[runningheads]{llncs}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{cite}
+
+\begin{document}
+
+\title{Two-Stage Deep Learning for Olive Tree Crown Detection, Apex Centroid Localization, and Canopy Health Assessment from Aerial and Satellite Imagery}
+
+\titlerunning{Two-Stage Deep Learning for Olive Tree Detection and Health}
+
+\author{Moad Moussaoui\inst{1} \and
+Noussaire Benassou\inst{1} \and
+Mohamed Lachgar\inst{1}\orcidID{0000-0002-7711-2079}}
+
+\authorrunning{M. Moussaoui et al.}
+
+\institute{Research Team in Intelligent Systems and Networks (ERIS), \\
+Ecole Marocaine des Sciences de l'Ingénieur (EMSI), Marrakech, Morocco \\
+\email{m.lachgar@emsi.ma}}
+
+\maketitle
+
+\begin{abstract}
+Accurate individual olive tree (\textit{Olea europaea} L.) inventory and canopy health monitoring from aerial and satellite imagery remain challenging due to small crown footprints, touching canopies, inter-sensor illumination shifts, and soil-shadow false positives. In this paper, we present a two-stage computer vision pipeline combining \textbf{YOLO11s} for high-recall crown detection with \textbf{YOLO11s-cls} for fine-grained canopy vigor classification into \textit{Healthy} (\texttt{sain}), \textit{Water Stress} (\texttt{stress}), and \textit{Suspect} (\texttt{suspect}). To preserve small tree crowns across wide orthomosaics, we introduce a Slicing Aided Hyper Inference (SAHI) $416\times416$ tiling strategy with 25\% overlap applied strictly after a 70\%/15\%/15\% train/validation/test split to eliminate data leakage. We further couple distance-transform apex centroid snapping with Gray-World color normalization and biophysical vegetation indices ($ExG$, $GCC$, $VARI$) calibrated against empirical Moroccan drought-stress benchmarks. Evaluated on an unseen 15\% test split of 21 images (2,297 olive tree crowns), the Stage~1 detector achieves a Precision of 94.72\%, a Recall of 82.75\%, an F1-score of 88.33\%, and an $mAP_{50}$ of 85.19\%, while the Stage~2 health classifier achieves 89.96\% Top-1 accuracy across 2,122 cropped crowns. Post-processing ablation on dense Haouz orchards eliminates stacked duplicate boxes and bare-soil false positives while achieving 0\% false positives on bare-soil control parcels.
+
+\keywords{Olive Tree Detection \and YOLO11 \and SAHI Tiled Inference \and Centroid Localization \and Water Stress Classification \and Precision Agriculture.}
+\end{abstract}
+
+\section{Introduction}
+Monitoring olive groves (\textit{Olea europaea} L.) across semi-arid Mediterranean regions requires reliable automated counting, precise trunk/apex localization, and early detection of water deficit and pathological decline. However, applying standard object detectors directly to very high-resolution (VHR) Unmanned Aerial Vehicle (UAV) orthomosaics or Zoom~19 satellite tiles introduces three critical failure modes: (i)~small canopies ($12$--$25\text{ px}$ wide) vanish during global image downscaling; (ii)~overlapping tile predictions and dense touching crowns generate stacked duplicate detections on a single tree; and (iii)~direct RGB thresholding misclassifies shaded foliage or dark bare soil as diseased (\textit{suspect}) trees.
+
+To address these limitations, we decouple spatial localization from physiological health diagnosis in a two-stage deep learning framework:
+\begin{enumerate}
+    \item \textbf{Stage~1 (Spatial Detection \& Apex Localization):} A \textbf{YOLO11s} detector trained on SAHI $416\times416$ overlapping tiles with C2PSA spatial attention, refined via inter-tile Non-Maximum Suppression (NMS), Euclidean distance-transform apex snapping, and chlorophyll-guarded deduplication.
+    \item \textbf{Stage~2 (Canopy Health Classification):} A dedicated \textbf{YOLO11s-cls} classifier operating on Gray-World normalized $128\times128$ crown crops, trained with strict train-only class rebalancing and calibrated against Moroccan water-stress and remote-sensing health benchmarks.
+\end{enumerate}
+
+\section{Datasets and Preprocessing}
+\subsection{Multi-Scale Aerial and Satellite Benchmarks}
+We construct a curated multi-scale benchmark combining UAV and satellite imagery:
+\begin{itemize}
+    \item \textbf{Hybrid Olive Benchmark:} 140 annotated images totaling \textbf{10,931 olive tree crowns}, comprising 115 UAV/aerial images (9,669 trees) and 25 Zoom~19 satellite tiles ($0.25\text{ m/px}$, 1,262 trees) from the Haouz plain, Marrakech.
+    \item \textbf{OAM-TCD Enrichment:} 30 high-resolution $2048\times2048$ tiles ($0.10\text{ m/px}$) streamed from OpenAerialMap Tree Cover Maps (\texttt{restor/tcd}) filtering individual tree crowns (\texttt{category\_id = 1}) to strengthen satellite generalization.
+    \item \textbf{Health Calibration References:} Physiological drought-stress thresholds are grounded in Moroccan olive cultivar measurements (Mendeley Data \texttt{10.17632/22j26tpk63/2}) and multimodal UAV/satellite health monitoring (Zenodo OLEA-PRED \texttt{10.5281/zenodo.10920137}, ICAERUS \texttt{10.5281/zenodo.13121962}, and OliveTreeCrownsDb \texttt{10.17632/xym8rd2srf.3}).
+\end{itemize}
+
+\subsection{Leakage-Free Split and SAHI Tiling}
+Prior to any tiling or augmentation, source images are partitioned into \textbf{70\% Training}, \textbf{15\% Validation}, and \textbf{15\% Test} (\texttt{seed=42}). Each split is then independently sliced into $416\times416$ SAHI tiles with a stride of $312\text{ px}$ (25\% overlap), yielding 460 UAV tiles (320 Train / 68 Val / 72 Test) and 25 local satellite tiles (17 Train / 3 Val / 5 Test) prior to OAM-TCD expansion.
+
+\subsection{Gray-World Normalization and Vegetation Indices}
+To remove sensor exposure bias between darker UAV orthophotos and brighter satellite imagery, each mosaic undergoes Gray-World channel balancing before computing Excess Green ($ExG$), Green Chromatic Coordinate ($GCC$), and Visible Atmospherically Resistant Index ($VARI$):
+\begin{equation}
+ExG = 2G - R - B, \quad GCC = \frac{G}{R + G + B}, \quad VARI = \frac{G - R}{G + R - B}
+\end{equation}
+For Stage~2 training, minority classes (\texttt{stress}, \texttt{suspect}) are augmented via orthogonal rotations and flips strictly inside the Training split, leaving Validation and Test splits 100\% real and unaugmented.
+
+\section{Proposed Two-Stage Methodology}
+\subsection{Stage 1: YOLO11s Crown Detection and Apex Snapping}
+We adopt \textbf{YOLO11s} (9,413,187 parameters, 21.4 GFLOPs), which integrates C3k2 blocks and Pointwise Spatial Attention (C2PSA) to separate adjacent olive crowns. Training uses \texttt{AdamW} ($\text{lr}_0=0.001$), Cosine annealing, mixed precision (\texttt{amp=True}), and \texttt{close\_mosaic=15}. During inference, $416\times416$ tiles ($\text{conf}=0.18$, $\text{IoU}=0.45$) undergo:
+\begin{enumerate}
+    \item \textbf{Inter-Tile NMS:} Suppresses duplicate boxes across tile borders ($\text{IoU}>0.25$ or center distance $<14\text{ px}$).
+    \item \textbf{Distance-Transform Recovery:} Extracts local maxima ($\text{dist\_smooth} \ge 2.9\text{ px}$) on a denoised foliage mask to recover medium crowns missed by raw proposals.
+    \item \textbf{Foliage Quality \& Apex Snapping:} Requires $\ge48\text{ px}^2$ of foliage ($\ge22\%$ box fill) and snaps each box center to the local distance-transform maximum, followed by an apex chlorophyll guard ($\text{ExG}_{\text{apex}} \ge 1.5$) and final deduplication ($\ge13.0\text{ px}$).
+\end{enumerate}
+
+\subsection{Stage 2: YOLO11s-cls Canopy Health Classification}
+Each localized crown is cropped from the Gray-World balanced mosaic, resized to $128\times128$, and classified by \textbf{YOLO11s-cls} (5,437,971 parameters, 12.1 GFLOPs) trained for 50 epochs with ColorJitter (\texttt{hsv\_h=0.02}, \texttt{hsv\_s=0.7}, \texttt{hsv\_v=0.5}) and random erasing (\texttt{0.2}).
+
+\section{Experimental Results and Model Comparison}
+\subsection{Architecture Comparison}
+Table~\ref{tab:arch} compares \textbf{YOLO11s} against representative object detection architectures from remote-sensing literature. YOLO11s achieves the lowest parameter count (9.4M) and computational cost (21.4 GFLOPs) while preserving spatial attention for dense tree crowns.
+
+\begin{table}[t]
+\centering
+\caption{Comparison of object detection architectures for aerial tree crown detection (literature complexity baselines vs.\ our deployed YOLO11s).}
+\label{tab:arch}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Architecture} & \textbf{Backbone / Attention} & \textbf{Params (M)} & \textbf{GFLOPs} & \textbf{Type} \\
+\midrule
+Faster R-CNN & ResNet-50 + FPN & 41.5 & 180.2 & Two-Stage Anchor \\
+RT-DETR-l & Hybrid Transformer & 32.0 & 110.0 & End-to-End Transformer \\
+YOLOv8s & CSPDarknet Split-Head & 11.2 & 28.6 & Anchor-Free Single-Stage \\
+\textbf{YOLO11s (Ours)} & \textbf{C3k2 + C2PSA Attention} & \textbf{9.4} & \textbf{21.4} & \textbf{Anchor-Free Attention} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Quantitative Evaluation on Unseen Test Splits}
+Table~\ref{tab:metrics} reports our measured performance on the strictly held-out 15\% Test splits. On 21 unseen test images containing 2,297 annotated olive trees, Stage~1 reaches \textbf{94.72\% Precision}, \textbf{82.75\% Recall}, \textbf{88.33\% F1-score}, and \textbf{85.19\% $mAP_{50}$}. On 2,122 unseen cropped crowns, Stage~2 achieves \textbf{89.96\% Top-1 Accuracy} with a mean prediction confidence of \textbf{89.60\%} (127 \texttt{sain}, 731 \texttt{stress}, 1,264 \texttt{suspect}).
+
+\begin{table}[t]
+\centering
+\caption{Measured evaluation metrics on held-out 15\% Test splits.}
+\label{tab:metrics}
+\begin{tabular}{llcc}
+\toprule
+\textbf{Pipeline Stage} & \textbf{Test Benchmark} & \textbf{Metric} & \textbf{Measured Value} \\
+\midrule
+\multirow{4}{*}{Stage 1: YOLO11s Detector} & \multirow{4}{*}{21 images (2,297 crowns)} & Precision ($P$) & 94.72\% \\
+ & & Recall ($R$) & 82.75\% \\
+ & & F1-Score & 88.33\% \\
+ & & $mAP_{50}$ / $mAP_{50\text{-}95}$ & 85.19\% / 38.09\% \\
+\midrule
+\multirow{2}{*}{Stage 2: YOLO11s-cls Health} & \multirow{2}{*}{2,122 cropped crowns} & Top-1 Accuracy & 89.96\% \\
+ & & Mean Confidence & 89.60\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Post-Processing Ablation and Field Validation}
+Table~\ref{tab:ablation} demonstrates the impact of our spatial refinement on a dense Haouz olive parcel and a bare-soil control parcel in Meknès. Raw tiled YOLO proposals produced 230 detections containing stacked duplicate boxes and small bare-soil false positives. Applying foliage fill filtering, apex snapping, chlorophyll guarding ($\text{ExG}_{\text{apex}}\ge1.5$), and deduplication reduced detections to \textbf{147 unique olive trees} (140 Healthy, 5 Water Stress, 2 Suspect) with 0 false positives on the bare-soil control parcel.
+
+\begin{table}[t]
+\centering
+\caption{Post-processing ablation on dense Haouz orchard and bare-soil control parcel.}
+\label{tab:ablation}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Configuration} & \textbf{Detected} & \textbf{Health Breakdown (Sain/Stress/Suspect)} & \textbf{Avg.\ Conf.} & \textbf{Control (Bare Soil)} \\
+\midrule
+YOLO11s + SAHI 416px (Raw) & 230 & 217 / 10 / 3 (with duplicates) & 91.1\% & 0 \\
+\textbf{Full Calibrated Pipeline (Ours)} & \textbf{147} & \textbf{140 / 5 / 2 (unique crowns)} & \textbf{94.8\%} & \textbf{0} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Conclusion}
+We presented a two-stage deep learning pipeline combining YOLO11s SAHI tiled detection, distance-transform apex snapping, and Gray-World normalized YOLO11s-cls health classification for olive groves. Evaluated on held-out aerial and satellite benchmarks, the framework achieves 94.72\% detection precision, 85.19\% $mAP_{50}$, and 89.96\% canopy health classification accuracy while eliminating duplicate crown boxes and bare-soil false positives. Future work will incorporate multi-band thermal/NIR indices and field-verified agronomic ground truth across additional Moroccan olive regions.
+
+\begin{thebibliography}{8}
+\bibitem{jocher2024yolo11}
+Jocher, G., Qiu, J., Chaurasia, A.: Ultralytics YOLO11. GitHub repository (2024), \url{https://github.com/ultralytics/ultralytics}
+
+\bibitem{akyon2022sahi}
+Akyon, F.C., Altinuc, S.O., Temizel, A.: Slicing aided hyper inference and fine-tuning for small object detection. In: IEEE International Conference on Image Processing (ICIP), pp. 966--970 (2022)
+
+\bibitem{elyamani2023mendeley}
+El Yamani, M., et al.: Morpho-physiological, biochemical, and physiological responses of eight olive cultivars to water stress (Fès, Morocco). Mendeley Data, v2 (2023), \url{https://doi.org/10.17632/22j26tpk63.2}
+
+\bibitem{oleapred2024zenodo}
+OLEA-PRED Consortium: Multimodal UAV and satellite benchmark dataset for olive tree monitoring and crown health assessment. Zenodo (2024), \url{https://doi.org/10.5281/zenodo.10920137}
+
+\bibitem{icaerus2024zenodo}
+ICAERUS EU Project: Olive tree detection UAV dataset. Zenodo (2024), \url{https://doi.org/10.5281/zenodo.13121962}
+
+\bibitem{hnida2024crowns}
+Hnida, Y., Mahraz, M.A., Achebour, A., Yahyaouy, A., Riffi, J., Tairi, H.: OliveTreeCrownsDb: A high-resolution UAV dataset for detection and segmentation in agricultural computer vision. Mendeley Data, v3 (2024), \url{https://doi.org/10.17632/xym8rd2srf.3}
+
+\bibitem{oamtcd2024}
+Veitch-Michaelis, J., et al.: OAM-TCD: A globally diverse dataset of high-resolution tree cover maps. NeurIPS Datasets and Benchmarks (2024), \url{https://huggingface.co/datasets/restor/tcd}
+
+\bibitem{woebbecke1995exg}
+Woebbecke, D.M., Meyer, G.E., Von Bargen, K., Mortensen, D.A.: Color indices for weed identification under various soil, residue, and lighting conditions. Transactions of the ASAE \textbf{38}(1), 259--269 (1995)
+\end{thebibliography}
+
+\end{document}
