@@ -283,10 +283,10 @@ def detect_trees_in_polygon(vertices, zoom=19):
     dist = cv2.distanceTransform(foliage_clean, cv2.DIST_L2, 5)
     dist_smooth = cv2.GaussianBlur(dist, (5, 5), 0)
 
-    # Pic de canopée (rayon minimal d'un vrai olivier >= 3.5 px, espacement >= 15 px ~ 3.75 m)
-    k_peak = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (13, 13))
+    # Pic de canopée (rayon minimal >= 2.9 px pour capter les oliviers moyens sans herbes)
+    k_peak = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
     dil = cv2.dilate(dist_smooth, k_peak)
-    peaks = (dist_smooth == dil) & (dist_smooth >= 3.5) & (poly_mask > 0)
+    peaks = (dist_smooth == dil) & (dist_smooth >= 2.9) & (poly_mask > 0)
 
     num_p, _, _, p_centroids = cv2.connectedComponentsWithStats(np.uint8(peaks * 255))
     raw_peaks = []
@@ -298,7 +298,7 @@ def detect_trees_in_polygon(vertices, zoom=19):
     raw_peaks.sort(key=lambda item: -item[2])
 
     recovered_trees = []
-    min_dist_px = 15.0  # Évite tout doublon sur un arbre déjà couvert par YOLO
+    min_dist_px = 13.0  # Évite tout doublon tout en récupérant les arbres moyens manqués
 
     for pcx, pcy, d_val in raw_peaks:
         # Vérifier que ce sommet n'est pas déjà couvert par une boîte YOLO
@@ -456,10 +456,12 @@ def detect_trees_in_polygon(vertices, zoom=19):
     unique_trees = []
     for t in merged_trees:
         tcx, tcy, tx1, ty1, tx2, ty2, tconf = t
-        d_apex = float(dist_smooth[max(0, min(H_mos - 1, int(round(tcy)))), max(0, min(W_mos - 1, int(round(tcx))))])
-        if d_apex < 2.2:
-            continue # Rejette les faux positifs sur sol nu / herbes fines
-        if all(math.hypot(tcx - u[0], tcy - u[1]) >= 13.5 for u in unique_trees):
+        iy, ix = max(0, min(H_mos - 1, int(round(tcy)))), max(0, min(W_mos - 1, int(round(tcx))))
+        d_apex = float(dist_smooth[iy, ix])
+        apex_exg = float(np.mean(exg[max(0, iy-2):min(H_mos, iy+3), max(0, ix-2):min(W_mos, ix+3)]))
+        if d_apex < 2.2 or apex_exg < 1.5:
+            continue # Rejette les ombres sur sol nu / terre brune (pas de chlorophylle)
+        if all(math.hypot(tcx - u[0], tcy - u[1]) >= 13.0 for u in unique_trees):
             unique_trees.append(t)
     merged_trees = unique_trees
 
