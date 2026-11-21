@@ -36,13 +36,29 @@ def get_health_model():
             _HEALTH_MODEL = None
     return _HEALTH_MODEL
 
+_DRONE_MODEL = None
+
+def get_drone_model():
+    global _DRONE_MODEL
+    if _DRONE_MODEL is None:
+        try:
+            from ultralytics import YOLO
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            p = os.path.join(base_dir, 'best_yolo11s_drone.pt')
+            if os.path.exists(p):
+                print(f"[YOLO Engine] Loading dedicated Drone UAV weights from {p}...")
+                _DRONE_MODEL = YOLO(p)
+        except Exception:
+            _DRONE_MODEL = None
+    return _DRONE_MODEL
+
 def get_yolo_model():
     global _YOLO_MODEL
     if _YOLO_MODEL is None:
         try:
             from ultralytics import YOLO
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            candidates = ['best_yolo11s_detector.pt', 'best_yolo11s.pt', 'yolo11s.pt', 'best.pt', 'yolov8s.pt']
+            candidates = ['best_yolo11s_satellite.pt', 'best_yolo11s_detector.pt', 'best_yolo11s_drone.pt', 'best_yolo11s.pt', 'yolo11s.pt', 'best.pt', 'yolov8s.pt']
             selected_path = None
             for cand in candidates:
                 p = os.path.join(base_dir, cand)
