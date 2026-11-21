@@ -234,8 +234,8 @@ def detect_trees_in_polygon(vertices, zoom=19):
                     gy2 = b[3] + ty1 + c_y1
                     gcx = (gx1 + gx2) / 2.0
                     gcy = (gy1 + gy2) / 2.0
-                    # Tolérance aux frontières du polygone (-12 px) pour ne manquer aucun arbre de bordure
-                    if cv2.pointPolygonTest(poly_px, (gcx, gcy), True) >= -12.0:
+                    # Strictement à l'intérieur du polygone tracé (évite les faux positifs sur les pistes/bordures)
+                    if cv2.pointPolygonTest(poly_px, (gcx, gcy), True) >= -2.0:
                         raw_tile_boxes.append((gcx, gcy, gx1, gy1, gx2, gy2, conf))
             except Exception as pred_err:
                 print(f"[YOLO Tile Predict Error]: {pred_err}")
@@ -258,7 +258,7 @@ def detect_trees_in_polygon(vertices, zoom=19):
                     area_y = (ybox[2] - ybox[0]) * (ybox[3] - ybox[1])
                     iou = inter / (area_t + area_y - inter)
                     dist_c = math.hypot(tgcx - ygcx, tgcy - ygcy)
-                    if iou > 0.35 or dist_c < 10.0:
+                    if iou > 0.25 or dist_c < 14.0:
                         duplicate = True
                         break
             if not duplicate:
@@ -283,11 +283,10 @@ def detect_trees_in_polygon(vertices, zoom=19):
     dist = cv2.distanceTransform(foliage_clean, cv2.DIST_L2, 5)
     dist_smooth = cv2.GaussianBlur(dist, (5, 5), 0)
 
-    # Pic de canopée (distance minimale entre troncs = 11 px ~ 2.75 m)
-    # Permet de détecter les arbres rapprochés sans omission
-    k_peak = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+    # Pic de canopée (rayon minimal d'un vrai olivier >= 3.5 px, espacement >= 15 px ~ 3.75 m)
+    k_peak = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (13, 13))
     dil = cv2.dilate(dist_smooth, k_peak)
-    peaks = (dist_smooth == dil) & (dist_smooth >= 2.6) & (poly_mask > 0)
+    peaks = (dist_smooth == dil) & (dist_smooth >= 3.5) & (poly_mask > 0)
 
     num_p, _, _, p_centroids = cv2.connectedComponentsWithStats(np.uint8(peaks * 255))
     raw_peaks = []
@@ -299,13 +298,13 @@ def detect_trees_in_polygon(vertices, zoom=19):
     raw_peaks.sort(key=lambda item: -item[2])
 
     recovered_trees = []
-    min_dist_px = 11.0  # Espacement minimal réaliste entre oliviers (2.75 m)
+    min_dist_px = 15.0  # Évite tout doublon sur un arbre déjà couvert par YOLO
 
     for pcx, pcy, d_val in raw_peaks:
         # Vérifier que ce sommet n'est pas déjà couvert par une boîte YOLO
         if all(math.hypot(pcx - ycx, pcy - ycy) >= min_dist_px for ycx, ycy, _, _, _, _, _ in yolo_trees):
             if all(math.hypot(pcx - rcx, pcy - rcy) >= min_dist_px for rcx, rcy, _, _, _, _, _ in recovered_trees):
-                rad = max(5, min(13, int(round(d_val * 1.08))))
+                rad = max(6, min(13, int(round(d_val * 1.08))))
                 rx1 = max(0, int(pcx - rad))
                 rx2 = min(W_mos - 1, int(pcx + rad))
                 ry1 = max(0, int(pcy - rad))
@@ -316,7 +315,7 @@ def detect_trees_in_polygon(vertices, zoom=19):
     all_raw = yolo_trees + recovered_trees
 
     # 4. FILTRAGE QUALITÉ & FUSION SPATIALE STRICTE (Anti-Doublons & Anti-Mauvaises Herbes)
-    # A. Ne garder que les candidats ayant une véritable masse foliaire (>= 18 px²)
+    # A. Exiger une véritable couronne foliaire (>= 48 px² et >= 22% de remplissage végétal)
     foliage_filtered = []
     for t in all_raw:
         cx, cy, x1, y1, x2, y2, conf = t
@@ -324,7 +323,8 @@ def detect_trees_in_polygon(vertices, zoom=19):
         bx2, by2 = min(W_mos, int(x2)), min(H_mos, int(y2))
         sub_mask = foliage_clean[by1:by2, bx1:bx2]
         area = np.count_nonzero(sub_mask)
-        if area >= 18: # Élimine le bruit ultra-fin sans supprimer les jeunes oliviers
+        box_area = max(1, (bx2 - bx1) * (by2 - by1))
+        if area >= 48 and (area / box_area) >= 0.22:
             foliage_filtered.append([float(cx), float(cy), float(x1), float(y1), float(x2), float(y2), float(conf), int(area)])
 
     # Helper: Calcul du chevauchement géométrique (IoU et IoMin)
@@ -352,9 +352,9 @@ def detect_trees_in_polygon(vertices, zoom=19):
     # tout en empêchant absolument l'effet boule de neige (fusion en cascade de plusieurs arbres voisins)
     foliage_filtered.sort(key=lambda item: -item[6])
     merged_trees = []
-    # Distance maximale pour appartenir au MÊME houppier (13 px ≈ 3.25 m à Zoom 19)
-    MAX_SAME_TREE_DIST_PX = 13.0
-    MAX_ALLOWABLE_CROWN_PX = 38.0  # Diamètre max biologique d'un grand olivier adulte (9.5 m)
+    # Distance maximale pour appartenir au MÊME houppier (15 px ≈ 3.75 m à Zoom 19)
+    MAX_SAME_TREE_DIST_PX = 15.0
+    MAX_ALLOWABLE_CROWN_PX = 42.0  # Diamètre max biologique d'un grand olivier adulte
 
     for item in foliage_filtered:
         cx, cy, x1, y1, x2, y2, conf, area = item
@@ -379,9 +379,9 @@ def detect_trees_in_polygon(vertices, zoom=19):
                 continue
 
             # Condition de fusion sur le MÊME arbre :
-            # 1. Distance très proche (< 3.25 m)
-            # 2. OU fort chevauchement (IoU >= 0.35) avec distance < 4.2 m (17 px)
-            if dist_centers < MAX_SAME_TREE_DIST_PX or (iou >= 0.35 and dist_centers < 17.0):
+            # 1. Distance proche (< 3.75 m)
+            # 2. OU fort chevauchement / boîte imbriquée (IoU >= 0.25 ou IoMin >= 0.45) avec distance < 19 px
+            if dist_centers < MAX_SAME_TREE_DIST_PX or ((iou >= 0.25 or iomin >= 0.45) and dist_centers < 19.0):
                 if dist_centers < best_dist:
                     best_dist = dist_centers
                     matched_idx = idx
@@ -450,6 +450,18 @@ def detect_trees_in_polygon(vertices, zoom=19):
             nx2 = min(float(W_mos), cx + rw)
             ny2 = min(float(H_mos), cy + rh)
             merged_trees.append((cx, cy, nx1, ny1, nx2, ny2, conf))
+
+    # C. Déduplication finale post-recentrage : garantit 1 seul cadre par arbre (jamais 2 points sur le même tronc)
+    merged_trees.sort(key=lambda t: -t[6])
+    unique_trees = []
+    for t in merged_trees:
+        tcx, tcy, tx1, ty1, tx2, ty2, tconf = t
+        d_apex = float(dist_smooth[max(0, min(H_mos - 1, int(round(tcy)))), max(0, min(W_mos - 1, int(round(tcx))))])
+        if d_apex < 2.2:
+            continue # Rejette les faux positifs sur sol nu / herbes fines
+        if all(math.hypot(tcx - u[0], tcy - u[1]) >= 13.5 for u in unique_trees):
+            unique_trees.append(t)
+    merged_trees = unique_trees
 
     # Tri du Nord au Sud
     merged_trees.sort(key=lambda t: (t[1], t[0]))
